@@ -6,16 +6,17 @@ authors = ["AI Assistant <assistant@example.com>"]
 packages = [{include = "app"}]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 fastapi = "*"
 uvicorn = {extras = ["standard"], version = "*"}
 langchain = "*"
-unstructured = "*"
+unstructured = {extras = ["docx", "pdf"], version = "^0.18.9"}
 chromadb = "*"
 neo4j = "*"
 sentence-transformers = "*"
 python-dotenv = "*"
 pydantic = "*"
+python-multipart = "^0.0.20"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

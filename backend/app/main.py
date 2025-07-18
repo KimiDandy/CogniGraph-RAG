@@ -3,12 +3,28 @@ import shutil
 from pathlib import Path
 from ingestion.parser import parse_document # Assuming execution from backend root
 import logging
+from fastapi.middleware.cors import CORSMiddleware
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Next RAG Backend")
+
+# Definisikan origin yang diizinkan (alamat frontend Anda)
+origins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+]
+
+# Tambahkan CORS Middleware ke aplikasi Anda
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"], # Izinkan semua metode (GET, POST, dll)
+    allow_headers=["*"], # Izinkan semua header
+)
 
 # Define the base path for uploads relative to the backend root
 UPLOAD_DIRECTORY = Path("data/uploads")
