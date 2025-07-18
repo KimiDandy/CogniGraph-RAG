@@ -22,7 +22,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ setIsLoading, setExtractedT
 
     try {
       const result = await uploadAndParseFile(file);
-      setExtractedText(result.extracted_text || "No text could be extracted.");
+      setExtractedText(result.message || "File processed, but no confirmation message received.");
     } catch (error) {
       console.error("Upload failed:", error);
       setExtractedText("Error: Failed to upload or parse the file.");

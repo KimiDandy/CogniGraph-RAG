@@ -1,7 +1,8 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 import shutil
 from pathlib import Path
-from ingestion.parser import parse_document # Assuming execution from backend root
+from ingestion.parser import parse_document
+from ingestion.indexer import process_and_store_embeddings # Assuming execution from backend root
 import logging
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -55,7 +56,16 @@ async def create_upload_file(file: UploadFile = File(...) ):
             logger.error(f"Failed to parse {file.filename}: {extracted_text}")
             raise HTTPException(status_code=422, detail=extracted_text)
 
-        return {"filename": file.filename, "extracted_text": extracted_text}
+        # If parsing is successful, proceed to chunk, embed, and index the text
+        try:
+            await process_and_store_embeddings(extracted_text)
+            logger.info(f"Successfully indexed document: {file.filename}")
+        except Exception as e:
+            logger.error(f"Failed during embedding and indexing for {file.filename}: {e}", exc_info=True)
+            # Decide if you want to fail the whole request or just log the indexing error
+            raise HTTPException(status_code=500, detail=f"Failed to index document: {str(e)}")
+
+        return {"filename": file.filename, "message": "File successfully parsed and indexed."}
 
     except Exception as e:
         logger.error(f"An unexpected error occurred in the upload endpoint: {e}", exc_info=True)

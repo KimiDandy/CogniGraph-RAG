@@ -3,7 +3,7 @@
  * @param file The file to upload.
  * @returns The JSON response from the API.
  */
-export async function uploadAndParseFile(file: File): Promise<{ filename: string; extracted_text: string }> {
+export async function uploadAndParseFile(file: File): Promise<{ filename: string; message: string }> {
   const formData = new FormData();
   formData.append("file", file);
 
