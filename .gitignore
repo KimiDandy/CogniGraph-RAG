@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.idea/
+*.egg-info/
+dist/
+build/
+
+# Next.js
+/frontend/node_modules/
+/frontend/.next/
+/frontend/out/
+
+# IDE & OS
+.DS_Store
+
+# Data - Keep the directories, but ignore their contents
+backend/data/uploads/*
+!backend/data/uploads/.gitkeep
+backend/data/chromadb/*
+!backend/data/chromadb/.gitkeep
+backend/data/neo4j/*
+!backend/data/neo4j/.gitkeep

@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "next-rag-backend"
+version = "0.1.0"
+description = "Backend for Next RAG project"
+authors = ["AI Assistant <assistant@example.com>"]
+packages = [{include = "app"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "*"
+uvicorn = {extras = ["standard"], version = "*"}
+langchain = "*"
+unstructured = "*"
+chromadb = "*"
+neo4j = "*"
+sentence-transformers = "*"
+python-dotenv = "*"
+pydantic = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
