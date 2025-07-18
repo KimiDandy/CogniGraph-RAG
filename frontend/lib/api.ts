@@ -19,3 +19,25 @@ export async function uploadAndParseFile(file: File): Promise<{ filename: string
 
   return response.json();
 }
+
+/**
+ * Posts a query to the backend and returns the answer.
+ * @param query The user's question.
+ * @returns The JSON response from the API containing the answer.
+ */
+export async function postQuery(query: string, filename: string): Promise<{ answer: string }> {
+  const response = await fetch("http://127.0.0.1:8000/query/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ query: query, filename: filename }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+}
+

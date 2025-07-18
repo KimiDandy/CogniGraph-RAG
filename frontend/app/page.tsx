@@ -7,6 +7,7 @@ import ChatInterface from "@/components/ChatInterface";
 export default function Page() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [extractedText, setExtractedText] = useState<string>("");
+  const [activeFilename, setActiveFilename] = useState<string>("");
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-gray-50 dark:bg-gray-900">
@@ -23,9 +24,16 @@ export default function Page() {
         <FileUploader
           setIsLoading={setIsLoading}
           setExtractedText={setExtractedText}
+          setActiveFilename={setActiveFilename}
         />
 
-        <ChatInterface isLoading={isLoading} extractedText={extractedText} />
+        <ChatInterface
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
+          extractedText={extractedText}
+          setExtractedText={setExtractedText}
+          activeFilename={activeFilename}
+        />
       </div>
     </main>
   );

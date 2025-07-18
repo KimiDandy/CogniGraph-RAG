@@ -17,6 +17,7 @@ sentence-transformers = "*"
 python-dotenv = "*"
 pydantic = "*"
 python-multipart = "^0.0.20"
+google-generativeai = "^0.8.5"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

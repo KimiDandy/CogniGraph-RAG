@@ -8,7 +8,7 @@ from core.config import EMBEDDING_MODEL_NAME, CHROMA_PATH, CHROMA_COLLECTION_NAM
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-async def process_and_store_embeddings(extracted_text: str):
+async def process_and_store_embeddings(extracted_text: str, filename: str):
     """
     Processes extracted text by chunking, embedding, and storing it in ChromaDB.
 
@@ -22,29 +22,31 @@ async def process_and_store_embeddings(extracted_text: str):
     
     # 2. Perform Chunking
     chunks = text_splitter.split_text(extracted_text)
-    logger.info(f"Text split into {len(chunks)} chunks.")
+    logger.info(f"Split text from '{filename}' into {len(chunks)} chunks.")
 
-    # 3. Initialize ChromaDB Client
+    # 3. Create metadata and unique IDs for each chunk
+    metadatas = [{"source_document": filename} for _ in chunks]
+    ids = [f"{filename}_chunk_{i}" for i, _ in enumerate(chunks)]
+    logger.info(f"Generated {len(ids)} unique IDs and metadata entries.")
+
+    # 4. Initialize ChromaDB Client
     client = chromadb.PersistentClient(path=CHROMA_PATH)
-    logger.info(f"Connected to ChromaDB at {CHROMA_PATH}.")
+    logger.info(f"ChromaDB client initialized at {CHROMA_PATH}.")
 
-    # 4. Initialize Embedding Function
+    # 5. Initialize Embedding Function
     sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(
         model_name=EMBEDDING_MODEL_NAME
     )
-    logger.info(f"Initialized Sentence Transformer with model: {EMBEDDING_MODEL_NAME}.")
+    logger.info(f"Embedding function initialized with model: {EMBEDDING_MODEL_NAME}.")
 
-    # 5. Get or Create Collection
+    # 6. Get or Create Collection
     collection = client.get_or_create_collection(
         name=CHROMA_COLLECTION_NAME,
         embedding_function=sentence_transformer_ef,
+        metadata={"hnsw:space": "cosine"}, # Use cosine distance
     )
     logger.info(f"Accessed or created collection: {CHROMA_COLLECTION_NAME}.")
 
-    # 6. Create Unique IDs
-    ids = [f"chunk_{i}" for i, _ in enumerate(chunks)]
-    logger.info(f"Generated {len(ids)} unique IDs for the chunks.")
-
     # 7. Add to Database
-    collection.add(documents=chunks, ids=ids)
-    logger.info(f"Successfully added {len(chunks)} document chunks to the collection.")
+    collection.add(documents=chunks, metadatas=metadatas, ids=ids)
+    logger.info(f"Successfully added {len(chunks)} document chunks for '{filename}' to the collection.")
