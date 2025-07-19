@@ -89,10 +89,15 @@ async def store_triplets_in_neo4j(structured_data: list):
         driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
         with driver.session() as session:
             for head, head_label, relation, tail, tail_label in structured_data:
+                # === ROBUSTNESS FIX ===
+                # Assign a default label if the LLM fails to provide one.
+                head_label = head_label or 'ENTITY'
+                tail_label = tail_label or 'ENTITY'
+
                 # Sanitize labels and relation for Cypher
                 head_label_safe = ''.join(c for c in head_label.upper() if c.isalnum())
                 tail_label_safe = ''.join(c for c in tail_label.upper() if c.isalnum())
-                relation_safe = ''.join(c for c in relation.upper() if c.isalnum() or c == '_')
+                relation_safe = ''.join(c for c in (relation or 'RELATED_TO').upper() if c.isalnum() or c == '_')
 
                 if not all([head_label_safe, tail_label_safe, relation_safe]):
                     continue

@@ -1,100 +1,77 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from ingestion.ocr_config import configure_tesseract
+from fastapi import FastAPI, File, UploadFile, HTTPException
 from pydantic import BaseModel
-import shutil
 from pathlib import Path
-from ingestion.parser import parse_document
-from ingestion.indexer import process_and_store_embeddings
-from retrieval.hybrid_retriever import get_answer # Assuming execution from backend root
+from ingestion.pipeline import process_document
+from ingestion.ocr_config import configure_tesseract
+from retrieval.hybrid_retriever import get_answer
 import logging
 from fastapi.middleware.cors import CORSMiddleware
 
-# Configure basic logging
+from typing import Optional, List, Dict
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Next RAG Backend")
+app = FastAPI(title="CogniGraph RAG API")
+
+origins = ["http://localhost:3000", "http://localhost:3001"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class StatusResponse(BaseModel):
+    status: str
+    message: Optional[str] = None
+    text_content: Optional[str] = None
+
+class QueryRequest(BaseModel):
+    query: str
+    filename: str
+    text_content: str # This is sent by the frontend but not used in the reverted logic
+    history: Optional[List[Dict[str, str]]] = None # Kept for model compatibility, but will be ignored
 
 @app.on_event("startup")
 async def startup_event():
     configure_tesseract()
 
-# Definisikan origin yang diizinkan (alamat frontend Anda)
-origins = [
-    "http://localhost:3000",
-    "http://localhost:3001",
-]
-
-# Tambahkan CORS Middleware ke aplikasi Anda
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"], # Izinkan semua metode (GET, POST, dll)
-    allow_headers=["*"], # Izinkan semua header
-)
-
-# Define the base path for uploads relative to the backend root
-UPLOAD_DIRECTORY = Path("data/uploads")
-
-# Pydantic model for the query request
-class QueryRequest(BaseModel):
-    query: str
-    filename: str
-
 @app.post("/uploadfile/")
-async def create_upload_file(file: UploadFile = File(...) ):
-    """
-    Accepts a file upload, saves it to a temporary location, 
-    parses it to extract text, and returns the result.
-    """
-    # Ensure the upload directory exists
-    UPLOAD_DIRECTORY.mkdir(parents=True, exist_ok=True)
-    
-    save_path = UPLOAD_DIRECTORY / file.filename
-    logger.info(f"Receiving file: {file.filename}. Saving to: {save_path}")
+async def create_upload_file(file: UploadFile):
+    filename = file.filename
+    sanitized_filename = Path(filename).name
+    upload_dir = Path("data/uploads")
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    file_path = upload_dir / sanitized_filename
 
     try:
-        # Save the uploaded file to the specified directory
-        with open(save_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+        with open(file_path, "wb") as buffer:
+            buffer.write(await file.read())
         
-        # Once saved, parse the document to extract text
-        logger.info(f"File saved. Starting text extraction for {save_path}")
-        extracted_text = await parse_document(file_path=str(save_path))
-
-        # Check if parsing returned an error message
-        if extracted_text.startswith("Error:"):
-            logger.error(f"Failed to parse {file.filename}: {extracted_text}")
-            raise HTTPException(status_code=422, detail=extracted_text)
-
-        # If parsing is successful, proceed to chunk, embed, and index the text
-        try:
-            await process_and_store_embeddings(extracted_text, filename=file.filename)
-            logger.info(f"Successfully indexed document: {file.filename}")
-        except Exception as e:
-            logger.error(f"Failed during embedding and indexing for {file.filename}: {e}", exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Failed to index document: {str(e)}")
-
-        return {
-            "message": f"File '{file.filename}' processed, chunked, and embeddings stored successfully.",
-            "filename": file.filename
-        }
+        logger.info(f"File '{sanitized_filename}' saved. Starting synchronous processing...")
+        
+        # Process the document directly and wait for it to finish
+        await process_document(str(file_path))
+        
+        logger.info(f"Successfully processed and indexed {sanitized_filename}")
+        return {"filename": sanitized_filename, "message": "File processed and indexed successfully."}
 
     except Exception as e:
-        logger.error(f"An unexpected error occurred in the upload endpoint: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"An internal server error occurred: {str(e)}")
-    finally:
-        # It's good practice to close the file handle from UploadFile
-        file.file.close()
+        logger.error(f"Error during file processing for {sanitized_filename}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Could not save or process file: {str(e)}")
 
 @app.post("/query/")
 async def answer_query(item: QueryRequest):
     """
-    Receives a query, retrieves relevant context, and returns a generated answer.
+    Receives a query, retrieves context, and returns an answer.
+    (Conversational logic has been removed as per user request).
     """
     try:
-        logger.info(f"Received query for processing: {item.query}")
+        logger.info(f"Received query: '{item.query}' for document: '{item.filename}'")
+        
+        # Get the answer using the original question, ignoring chat history.
         answer = await get_answer(query=item.query, filename=item.filename)
         return {"answer": answer}
     except Exception as e:

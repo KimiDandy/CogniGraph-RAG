@@ -7,7 +7,18 @@ const config: Config = {
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary: '#4f46e5', // Indigo 600
+        secondary: '#10b981', // Emerald 500
+        accent: '#f59e0b', // Amber 500
+        'chat-user': '#e0f2fe', // Sky 100
+        'chat-assistant': '#f3f4f6', // Gray 100
+      },
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 }

@@ -1,3 +1,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  @apply text-slate-800;
+  background-color: #f0f4f8; /* Fallback background */
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: radial-gradient(circle at 15% 50%, #dbeafe 0%, transparent 25%),
+                    radial-gradient(circle at 85% 30%, #d1fae5 0%, transparent 25%),
+                    radial-gradient(circle at 60% 80%, #fce7f3 0%, transparent 30%);
+  filter: blur(80px);
+  z-index: -1;
+  opacity: 0.6;
+}
