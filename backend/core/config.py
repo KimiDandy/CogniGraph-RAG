@@ -20,7 +20,7 @@ NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
 TESSERACT_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 # Nama model embedding dari Hugging Face
-EMBEDDING_MODEL_NAME = "paraphrase-multilingual-mpnet-base-v2"
+EMBEDDING_MODEL_NAME = "intfloat/multilingual-e5-large"
 
 # Path untuk menyimpan database vektor ChromaDB secara lokal
 CHROMA_PATH = "data/chromadb"
