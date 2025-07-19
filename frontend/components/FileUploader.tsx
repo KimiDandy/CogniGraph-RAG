@@ -1,53 +1,116 @@
 "use client";
 
-import * as React from 'react';
-import { useState } from 'react';
-import { uploadAndParseFile } from "@/lib/api";
+import { useState, useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { uploadFile, checkStatus, StatusResponse } from '@/lib/api';
+import { FileUp, Loader, XCircle } from 'lucide-react';
 
-// Define the component's props interface
 interface FileUploaderProps {
-  setIsLoading: (isLoading: boolean) => void;
-  setExtractedText: (text: string) => void;
-  setActiveFilename: (filename: string) => void;
+  onProcessingStart: (filename: string) => void;
+  onProcessingComplete: (status: StatusResponse) => void;
+  onProcessingError: (message: string) => void;
+  isProcessing: boolean;
+  error: string | null;
+  currentFile: string;
 }
 
-const FileUploader: React.FC<FileUploaderProps> = ({ setIsLoading, setExtractedText, setActiveFilename }) => {
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      return;
+const FileUploader: React.FC<FileUploaderProps> = ({ 
+  onProcessingStart,
+  onProcessingComplete,
+  onProcessingError,
+  isProcessing,
+  error,
+  currentFile
+}) => {
+  const [statusMessage, setStatusMessage] = useState<string>('');
+  const [progress, setProgress] = useState(0);
+
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 0 && !isProcessing) {
+      const file = acceptedFiles[0];
+      onProcessingStart(file.name);
+      setProgress(0);
+      setStatusMessage('Mengunggah file...');
+
+      try {
+        const uploadResponse = await uploadFile(file);
+        const filename = uploadResponse.filename;
+        setStatusMessage('Dokumen diterima, memulai analisis...');
+        setProgress(25); // Initial progress after upload
+
+        const pollStatus = async () => {
+          try {
+            const statusResponse = await checkStatus(filename);
+            const newProgress = statusResponse.progress || progress;
+            setProgress(newProgress);
+            setStatusMessage(statusResponse.message || `Status: ${statusResponse.status}`);
+
+            if (statusResponse.status === 'completed' || statusResponse.status === 'failed') {
+              setProgress(100);
+              onProcessingComplete(statusResponse);
+            } else {
+              setTimeout(pollStatus, 2000);
+            }
+          } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Gagal memeriksa status.';
+            onProcessingError(errorMessage);
+          }
+        };
+        setTimeout(pollStatus, 1000);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Gagal mengunggah file.';
+        onProcessingError(errorMessage);
+      }
     }
+  }, [onProcessingStart, onProcessingComplete, onProcessingError, isProcessing, progress]);
 
-    setIsLoading(true);
-    setExtractedText("");
-
-    try {
-      const result = await uploadAndParseFile(file);
-      setExtractedText(result.message || "File processed, but no confirmation message received.");
-      setActiveFilename(result.filename);
-    } catch (error) {
-      console.error("Upload failed:", error);
-      setExtractedText("Error: Failed to upload or parse the file.");
-    } finally {
-      setIsLoading(false);
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+    onDrop,
+    disabled: isProcessing,
+    multiple: false,
+    accept: {
+      'application/pdf': ['.pdf'],
+      'text/plain': ['.txt'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
     }
-  };
+  });
 
+  // Display for processing or error state
+  if (isProcessing || error) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center text-center p-4">
+        <div className="mb-4">
+          {error ? (
+            <XCircle className="h-12 w-12 text-red-500" />
+          ) : (
+            <Loader className="h-12 w-12 text-blue-500 animate-spin" />
+          )}
+        </div>
+        <p className="text-lg font-medium text-slate-800 break-all">{error ? 'Terjadi Kesalahan' : 'Sedang Menganalisis'}</p>
+        <p className="text-sm text-slate-600 mb-4 break-all">{error ? error : currentFile}</p>
+        {!error && (
+            <div className="w-full bg-slate-200 rounded-full h-2.5">
+                <div className="bg-blue-500 h-2.5 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
+            </div>
+        )}
+        <p className="text-xs text-slate-500 mt-2">{statusMessage}</p>
+      </div>
+    );
+  }
+
+  // Default display for idle state
   return (
-    <div className="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg text-center">
-      <input
-        type="file"
-        onChange={handleFileChange}
-        className="block w-full text-sm text-gray-500
-          file:mr-4 file:py-2 file:px-4
-          file:rounded-full file:border-0
-          file:text-sm file:font-semibold
-          file:bg-violet-50 file:text-violet-700
-          hover:file:bg-violet-100"
-        accept=".pdf, .docx, .pptx, .txt"
-      />
+    <div {...getRootProps()} className={`w-full h-full border-2 border-dashed rounded-xl flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 
+      ${isDragActive ? 'border-blue-500 bg-blue-100/50' : 'border-slate-300 hover:border-blue-400 hover:bg-slate-100/50'}`}>
+      <input {...getInputProps()} />
+      <div className="p-6">
+        <FileUp className="h-12 w-12 mx-auto text-slate-400 mb-4" />
+        <p className="font-semibold text-slate-700">Tarik & Lepas Dokumen Anda</p>
+        <p className="text-sm text-slate-500 mt-1">atau klik untuk memilih file</p>
+        <p className="text-xs text-slate-400 mt-4">Mendukung: PDF, DOCX, TXT</p>
+      </div>
     </div>
   );
-}
+};
 
 export default FileUploader;
