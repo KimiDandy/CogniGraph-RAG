@@ -10,7 +10,7 @@
 
 ## 🎯 Latar Belakang & Visi Proyek
 
-**CogniGraph RAG** lahir dari tantangan nyata di lingkungan perusahaan, di mana sistem chatbot berbasis RAG standar seringkali gagal dalam:
+**CogniGraph RAG** lahir dari tantangan umum di lingkungan dunia nyata, di mana sistem chatbot berbasis RAG standar seringkali gagal dalam:
 
 1. **Ekstraksi Dangkal**: Tidak mampu memahami informasi dari tata letak dokumen yang kompleks
 2. **Kebutaan Kontekstual**: Gagal membaca teks penting yang tertanam di dalam gambar (seperti tanda tangan, logo, atau detail infografis)
