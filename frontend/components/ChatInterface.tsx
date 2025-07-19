@@ -55,13 +55,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   const getPlaceholder = () => {
     if (uploadedFiles.length > 0 && !isReadyForChat) {
-      return "Processing documents...";
+      return "Sedang memproses dokumen...";
     }
     if (!isReadyForChat) {
-        return "Upload documents to begin chat.";
+        return "Unggah dokumen untuk memulai obrolan.";
     }
     if (activeFiles.length === 0) {
-      return "Select a document to begin...";
+      return "Pilih dokumen untuk memulai...";
     }
     return "Tanyakan sesuatu tentang dokumen Anda...";
   };
@@ -99,7 +99,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 <div className="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center flex-shrink-0"><Bot size={20} /></div>
                 <div className="px-4 py-3 rounded-2xl max-w-md bg-white text-slate-800 rounded-bl-none shadow-sm flex items-center space-x-2">
                     <Loader2 className="h-5 w-5 text-slate-500 animate-spin"/>
-                    <span className="text-sm text-slate-500">Thinking...</span>
+                    <span className="text-sm text-slate-500">Sedang berpikir...</span>
                 </div>
             </div>
         )}

@@ -7,7 +7,13 @@ logger = logging.getLogger(__name__)
 
 def _format_chat_history(chat_history: list[dict]) -> str:
     """
-    Formats the chat history into a single string.
+    Memformat riwayat percakapan dari list of dict menjadi sebuah string tunggal.
+
+    Args:
+        chat_history (list[dict]): Riwayat percakapan dalam format standar.
+
+    Returns:
+        str: String yang berisi seluruh riwayat percakapan.
     """
     if not chat_history:
         return ""
@@ -21,7 +27,19 @@ def _format_chat_history(chat_history: list[dict]) -> str:
 
 async def rephrase_question_with_history(query: str, chat_history: list) -> str:
     """
-    Rephrases the user's question based on the chat history to make it a standalone question.
+    Memformulasikan ulang pertanyaan pengguna berdasarkan riwayat percakapan.
+
+    Tujuannya adalah untuk mengubah pertanyaan lanjutan yang mungkin ambigu
+    (misalnya, "siapa namanya?") menjadi pertanyaan yang mandiri dan lengkap
+    (misalnya, "siapa nama manajer TEFA?").
+
+    Args:
+        query (str): Pertanyaan lanjutan dari pengguna.
+        chat_history (list): Riwayat percakapan sebelumnya.
+
+    Returns:
+        str: Pertanyaan yang telah diformulasikan ulang. Mengembalikan
+             pertanyaan asli jika terjadi kesalahan atau tidak ada riwayat.
     """
     if not chat_history:
         logger.info("No chat history, returning original query.")
@@ -50,5 +68,5 @@ Standalone question:"""
         return standalone_question
     except Exception as e:
         logger.error(f"Error during question rephrasing: {e}")
-        # Fallback to the original query in case of an error
+
         return query

@@ -1,6 +1,7 @@
 import logging
 import google.generativeai as genai
 from .qa_chain import vector_search_tool
+from .conversational_logic import rephrase_question_with_history
 from core.config import LLM_MODEL_NAME, GOOGLE_API_KEY
 from typing import List, Dict, Optional
 
@@ -11,39 +12,29 @@ genai.configure(api_key=GOOGLE_API_KEY)
 
 async def get_answer(query: str, filenames: List[str], chat_history: Optional[List[Dict[str, str]]]) -> str:
     """
-    Retrieves an answer from the new Context-Enriched RAG architecture.
-    It performs a single, powerful vector search against 'super-chunks' and generates a final answer.
+    Mengorkestrasi alur RAG untuk menghasilkan jawaban berdasarkan kueri.
+
+    Fungsi ini menjalankan tiga langkah utama:
+    1.  **Rephrase:** Memformulasikan ulang pertanyaan pengguna jika ada riwayat
+        percakapan untuk menjadikannya pertanyaan yang mandiri.
+    2.  **Retrieve:** Mengambil konteks yang relevan dari dokumen yang dipilih
+        menggunakan pencarian vektor pada 'super-chunks' yang diperkaya.
+    3.  **Generate:** Menghasilkan jawaban akhir menggunakan LLM berdasarkan
+        konteks yang telah diambil.
+
+    Args:
+        query (str): Pertanyaan dari pengguna.
+        filenames (List[str]): Daftar file yang menjadi sumber jawaban.
+        chat_history (Optional[List[Dict[str, str]]]): Riwayat percakapan.
+
+    Returns:
+        str: Jawaban akhir yang dihasilkan oleh model.
     """
     logger.info(f"Initiating enriched RAG for query: '{query}' on files: {filenames}")
 
-    # 1. Rephrase Question (if history exists)
-    # ========================================
-    rephrased_query = query
-    if chat_history and len(chat_history) > 1: # more than just the initial assistant message
-        logger.info("Chat history detected. Rephrasing question...")
-        history_str = "\n".join([f"{msg['role']}: {msg['content']}" for msg in chat_history])
-        rephrase_prompt = f"""
-        Berdasarkan riwayat percakapan berikut dan pertanyaan terakhir, buatlah pertanyaan mandiri yang dapat dipahami tanpa konteks riwayat.
+    rephrased_query = await rephrase_question_with_history(query, chat_history)
 
-        Riwayat Percakapan:
-        {history_str}
 
-        Pertanyaan Terakhir: {query}
-
-        Pertanyaan Mandiri:
-        """
-        try:
-            model = genai.GenerativeModel(LLM_MODEL_NAME)
-            response = await model.generate_content_async(rephrase_prompt)
-            rephrased_query = response.text.strip()
-            logger.info(f"Rephrased query: '{rephrased_query}'")
-        except Exception as e:
-            logger.error(f"Error during question rephrasing: {e}", exc_info=True)
-            # Proceed with original query if rephrasing fails
-            rephrased_query = query
-
-    # 2. Retrieve Enriched Context
-    # ==============================
     context = await vector_search_tool(rephrased_query, filenames)
     if not context:
         logger.warning("Vector search returned no context. Cannot generate answer.")
@@ -51,8 +42,7 @@ async def get_answer(query: str, filenames: List[str], chat_history: Optional[Li
 
     logger.info(f"Retrieved enriched context. Length: {len(context)}")
 
-    # 3. Final Answer Generation
-    # ==========================
+
     logger.info("Generating final answer from enriched context...")
     model = genai.GenerativeModel(LLM_MODEL_NAME)
 

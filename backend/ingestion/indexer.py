@@ -11,15 +11,26 @@ logger = logging.getLogger(__name__)
 
 async def process_and_store_embeddings(extracted_text: str, filename: str):
     """
-    Processes text by extracting a knowledge graph, enriching text chunks with graph facts,
-    and then storing the enriched chunks as vector embeddings in ChromaDB.
+    Memproses teks, membangun knowledge graph, dan mengindeksnya ke ChromaDB.
+
+    Fungsi ini menjalankan pipeline Graph-Enhanced RAG:
+    1.  **Ekstraksi Knowledge Graph:** Mengekstrak entitas dan relasi dari teks
+        menggunakan LLM dan menyimpannya ke Neo4j.
+    2.  **Text Chunking:** Memecah teks menjadi potongan-potongan yang lebih kecil.
+    3.  **Pengayaan Konteks:** Menambahkan fakta-fakta relevan dari knowledge graph
+        ke setiap potongan teks untuk memberikan konteks tambahan.
+    4.  **Indexing:** Membuat embedding dari potongan teks yang telah diperkaya dan
+        menyimpannya ke dalam database vektor ChromaDB.
+
+    Args:
+        extracted_text (str): Teks mentah yang diekstrak dari dokumen.
+        filename (str): Nama file asli, digunakan untuk metadata.
     """
     if not extracted_text or not extracted_text.strip():
         logger.warning(f"Skipping embedding process for {filename} because no text was extracted.")
         return
 
-    # 1. Knowledge Graph Extraction & Storage
-    logger.info(f"Step 1: Extracting and storing knowledge graph for {filename}...")
+    logger.info(f"Langkah 1: Ekstraksi dan penyimpanan knowledge graph untuk {filename}...")
     try:
         structured_data = await extract_knowledge_graph_from_text(extracted_text)
         if structured_data:
@@ -31,8 +42,7 @@ async def process_and_store_embeddings(extracted_text: str, filename: str):
         # Continue without graph enrichment if this step fails
         structured_data = None
 
-    # 2. Text Chunking
-    logger.info(f"Step 2: Chunking document text for {filename}...")
+    logger.info(f"Langkah 2: Memecah teks dokumen untuk {filename}...")
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000,
         chunk_overlap=200,
@@ -41,8 +51,7 @@ async def process_and_store_embeddings(extracted_text: str, filename: str):
     chunks = text_splitter.split_text(extracted_text)
     logger.info(f"Split text into {len(chunks)} chunks.")
 
-    # 3. Context Enrichment
-    logger.info(f"Step 3: Enriching {len(chunks)} chunks with graph context...")
+    logger.info(f"Langkah 3: Memperkaya {len(chunks)} potongan teks dengan konteks dari graph...")
     enriched_chunks = []
     if structured_data:
         for chunk in chunks:
@@ -60,12 +69,11 @@ async def process_and_store_embeddings(extracted_text: str, filename: str):
 
     logger.info(f"Finished enriching chunks. Total enriched chunks: {len(enriched_chunks)}")
 
-    # 4. Indexing into ChromaDB
     if not enriched_chunks:
-        logger.warning(f"No chunks to index for {filename}. Aborting.")
+        logger.warning(f"Tidak ada potongan teks untuk diindeks untuk file {filename}. Proses dibatalkan.")
         return
 
-    logger.info(f"Step 4: Indexing {len(enriched_chunks)} enriched chunks into ChromaDB...")
+    logger.info(f"Langkah 4: Mengindeks {len(enriched_chunks)} potongan teks ke ChromaDB...")
     try:
         client = chromadb.PersistentClient(path=CHROMA_PATH)
         sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBEDDING_MODEL_NAME)
