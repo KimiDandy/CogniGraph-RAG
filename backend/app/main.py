@@ -30,9 +30,8 @@ class StatusResponse(BaseModel):
 
 class QueryRequest(BaseModel):
     query: str
-    filename: str
-    text_content: str # This is sent by the frontend but not used in the reverted logic
-    history: Optional[List[Dict[str, str]]] = None # Kept for model compatibility, but will be ignored
+    filenames: List[str]
+    chat_history: Optional[List[Dict[str, str]]] = None
 
 @app.on_event("startup")
 async def startup_event():
@@ -65,14 +64,12 @@ async def create_upload_file(file: UploadFile):
 @app.post("/query/")
 async def answer_query(item: QueryRequest):
     """
-    Receives a query, retrieves context, and returns an answer.
-    (Conversational logic has been removed as per user request).
+    Receives a query, retrieves context from multiple documents, and returns an answer.
     """
     try:
-        logger.info(f"Received query: '{item.query}' for document: '{item.filename}'")
+        logger.info(f"Received query: '{item.query}' for documents: {item.filenames}")
         
-        # Get the answer using the original question, ignoring chat history.
-        answer = await get_answer(query=item.query, filename=item.filename)
+        answer = await get_answer(query=item.query, filenames=item.filenames, chat_history=item.chat_history)
         return {"answer": answer}
     except Exception as e:
         logger.error(f"Error processing query '{item.query}': {e}", exc_info=True)

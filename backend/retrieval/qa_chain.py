@@ -3,6 +3,7 @@ import google.generativeai as genai
 import chromadb
 from neo4j import GraphDatabase
 from chromadb.utils import embedding_functions
+from typing import List
 from core.config import (
     GOOGLE_API_KEY,
     LLM_MODEL_NAME,
@@ -19,11 +20,11 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 genai.configure(api_key=GOOGLE_API_KEY)
 
-async def vector_search_tool(query: str, filename: str) -> str:
+async def vector_search_tool(query: str, filenames: List[str]) -> str:
     """
     Performs a vector search in ChromaDB filtered by filename.
     """
-    logger.info(f"Executing vector search for query: '{query}' on file: '{filename}'")
+    logger.info(f"Executing vector search for query: '{query}' on files: {filenames}")
     try:
         client = chromadb.PersistentClient(path=CHROMA_PATH)
         sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(
@@ -36,7 +37,7 @@ async def vector_search_tool(query: str, filename: str) -> str:
         results = collection.query(
             query_texts=[query], 
             n_results=5, 
-            where={"source_document": filename}
+            where={"source_document": {"$in": filenames}}
         )
         
         if not results["documents"] or not results["documents"][0]:

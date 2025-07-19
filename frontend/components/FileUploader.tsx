@@ -3,43 +3,67 @@
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { uploadFile } from '@/lib/api';
-import { FileUp, Loader, XCircle } from 'lucide-react';
+import { FileUp } from 'lucide-react';
+import { Document } from '@/app/page';
 
 interface FileUploaderProps {
-  onUploadComplete: (filename: string, textContent: string) => void;
-  isChatActive: boolean;
+  setUploadedFiles: React.Dispatch<React.SetStateAction<Document[]>>;
 }
 
-const FileUploader: React.FC<FileUploaderProps> = ({ onUploadComplete, isChatActive }) => {
-  const [status, setStatus] = useState<'idle' | 'uploading' | 'error'>('idle');
-  const [error, setError] = useState<string | null>(null);
-  const [progress, setProgress] = useState(0);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+type UploadResult = { 
+  name: string; 
+  status: 'completed' | 'error'; 
+  error?: any; 
+};
+
+const FileUploader: React.FC<FileUploaderProps> = ({ setUploadedFiles }) => {
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleUpload = useCallback(async (acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (!file) return;
+    if (acceptedFiles.length === 0) return;
 
-    setStatus('uploading');
-    setError(null);
-    setProgress(0);
-    setUploadedFile(file);
+    setIsUploading(true);
 
-    try {
-      const { filename } = await uploadFile(file, setProgress);
-      setStatus('idle'); // Reset status after completion
-      setProgress(100);
-      onUploadComplete(filename, ""); // Backend is sync, activate chat immediately
-    } catch (uploadError: any) {
-      setError(uploadError.message || 'An unexpected error occurred.');
-      setStatus('error');
-    }
-  }, [onUploadComplete]);
+    // Add all new files to the list with 'processing' status immediately
+    const newFiles: Document[] = acceptedFiles.map(file => ({ name: file.name, status: 'processing' }));
+    setUploadedFiles(prev => [...prev, ...newFiles]);
+
+    // Create an array of upload promises
+    const uploadPromises: Promise<UploadResult>[] = acceptedFiles.map(file => 
+      uploadFile(file, () => {}).then(
+        () => ({ name: file.name, status: 'completed' }),
+        (error) => ({ name: file.name, status: 'error', error })
+      )
+    );
+
+    // Wait for all uploads to settle
+    const results = await Promise.allSettled(uploadPromises);
+
+    // Update statuses based on results
+    setUploadedFiles(prev => {
+      const newFileStates = [...prev];
+      results.forEach(result => {
+        if (result.status === 'fulfilled') {
+          const { name, status, error } = result.value;
+          if (status === 'error' && error) {
+            console.error(`Upload error for ${name}:`, error);
+          }
+          const fileIndex = newFileStates.findIndex(f => f.name === name && f.status === 'processing');
+          if (fileIndex !== -1) {
+            newFileStates[fileIndex] = { ...newFileStates[fileIndex], status };
+          }
+        }
+      });
+      return newFileStates;
+    });
+
+    setIsUploading(false);
+  }, [setUploadedFiles]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
     onDrop: handleUpload,
-    disabled: status === 'uploading' || isChatActive,
-    multiple: false,
+    disabled: isUploading,
+    multiple: true,
     accept: {
       'application/pdf': ['.pdf'],
       'text/plain': ['.txt'],
@@ -47,45 +71,20 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadComplete, isChatAct
     }
   });
 
-  if (status === 'uploading' || status === 'error') {
-    return (
-      <div className="w-full h-full flex flex-col items-center justify-center text-center p-4">
-        <div className="mb-4">
-          {status === 'error' ? (
-            <XCircle className="h-12 w-12 text-red-500" />
-          ) : (
-            <Loader className="h-12 w-12 text-blue-500 animate-spin" />
-          )}
-        </div>
-        <p className="text-lg font-medium text-slate-800 break-all">
-          {status === 'error' ? 'Terjadi Kesalahan' : 'Sedang Menganalisis'}
-        </p>
-        <p className="text-sm text-slate-600 mb-4 break-all">
-          {status === 'error' ? error : uploadedFile?.name}
-        </p>
-        {status === 'uploading' && (
-            <div className="w-full bg-slate-200 rounded-full h-2.5">
-                <div className="bg-blue-500 h-2.5 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
-            </div>
-        )}
-      </div>
-    );
-  }
-
   return (
     <div {...getRootProps()} className={`w-full h-full border-2 border-dashed rounded-xl flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 
       ${isDragActive ? 'border-blue-500 bg-blue-100/50' : 'border-slate-300 hover:border-blue-400 hover:bg-slate-100/50'} 
-      ${isChatActive ? 'bg-slate-100/80 border-slate-200 cursor-not-allowed' : ''}`}>
+      ${isUploading ? 'bg-slate-100/80 border-slate-200 cursor-wait' : ''}`}>
       <input {...getInputProps()} />
       <div className="p-6">
         <FileUp className="h-12 w-12 mx-auto text-slate-400 mb-4" />
-        <p className={`font-semibold ${isChatActive ? 'text-slate-500' : 'text-slate-700'}`}>
-          {isChatActive ? 'Dokumen Telah Dimuat' : 'Tarik & Lepas Dokumen Anda'}
+        <p className={`font-semibold ${isUploading ? 'text-slate-500' : 'text-slate-700'}`}>
+          {isUploading ? 'Sedang Mengunggah...' : 'Tarik & Lepas Dokumen'}
         </p>
         <p className="text-sm text-slate-500 mt-1">
-          {isChatActive ? uploadedFile?.name : 'atau klik untuk memilih file'}
+          {isUploading ? 'Harap tunggu' : 'atau klik untuk memilih file'}
         </p>
-        {!isChatActive && <p className="text-xs text-slate-400 mt-4">Mendukung: PDF, DOCX, TXT</p>}
+        {!isUploading && <p className="text-xs text-slate-400 mt-4">Mendukung: PDF, DOCX, TXT</p>}
       </div>
     </div>
   );
