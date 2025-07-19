@@ -82,10 +82,10 @@ const FileUploader: React.FC<FileUploaderProps> = ({ setUploadedFiles }) => {
       <input {...getInputProps()} />
       <FileUp className="mx-auto h-10 w-10 text-gray-400" />
       <span className="mt-2 block text-sm font-semibold text-indigo-600">
-        {isUploading ? 'Uploading...' : 'Click to upload or drag & drop'}
+        {isUploading ? 'Mengunggah...' : 'Klik untuk mengunggah atau seret & lepas'}
       </span>
       <p className="mt-1 block text-xs text-gray-500">
-        {isUploading ? 'Please wait...' : 'PDF, DOCX, PPTX, TXT'}
+        {isUploading ? 'Mohon tunggu...' : 'Mendukung PDF, DOCX, TXT'}
       </p>
     </div>
   );

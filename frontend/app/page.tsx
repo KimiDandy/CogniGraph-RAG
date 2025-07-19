@@ -31,7 +31,7 @@ export default function Home() {
           <h1 className="text-4xl font-bold tracking-tighter text-slate-800">
             CogniGraph RAG
           </h1>
-          <p className="text-slate-600 mt-2">Your Multi-Document AI Analyst</p>
+          <p className="text-slate-600 mt-2">Analis AI Multi-Dokumen Anda</p>
         </header>
 
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-8 bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
@@ -40,7 +40,7 @@ export default function Home() {
             <div>
               <header className="mb-4">
                 <h2 className="text-xl font-bold tracking-tight">
-                  1. Upload Documents
+                  1. Unggah Dokumen
                 </h2>
               </header>
               <FileUploader setUploadedFiles={setUploadedFiles} />
@@ -48,7 +48,7 @@ export default function Home() {
             <div className="flex-grow flex flex-col">
               <header className="mb-4">
                 <h2 className="text-xl font-bold tracking-tight">
-                  2. Select Active Documents
+                  2. Pilih Dokumen Aktif
                 </h2>
               </header>
               <DocumentLibrary
@@ -65,13 +65,13 @@ export default function Home() {
               onNewMessage={handleNewMessage}
               messages={messages}
               activeFiles={activeFiles}
-              uploadedFiles={uploadedFiles} // Fix: Pass uploadedFiles prop
+              uploadedFiles={uploadedFiles} 
             />
           </div>
         </main>
 
         <footer className="mt-12 text-center text-slate-500 text-sm">
-          <p>&copy; {new Date().getFullYear()} CogniGraph RAG. Built with Next.js and FastAPI.</p>
+          <p>© 2025 CogniGraph RAG. Built by Kimi Dandy Yudanarko.</p>
         </footer>
       </div>
     </div>

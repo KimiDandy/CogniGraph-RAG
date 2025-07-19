@@ -18,13 +18,13 @@ const DocumentLibrary: React.FC<DocumentLibraryProps> = ({ uploadedFiles, active
 
   const StatusSummary = () => {
     if (processingCount > 0) {
-      return <p className="text-sm text-slate-600">Processing {processingCount} file{processingCount > 1 ? 's' : ''}...</p>;
+      return <p className="text-sm text-slate-600">Memproses {processingCount} file...</p>;
     }
     if (completedCount === totalCount && totalCount > 0) {
-      return <p className="text-sm text-green-600">All {totalCount} document{totalCount > 1 ? 's' : ''} ready.</p>;
+      return <p className="text-sm text-green-600">Semua {totalCount} dokumen siap.</p>;
     }
     if (totalCount > 0) {
-      return <p className="text-sm text-slate-600">{completedCount} of {totalCount} document{totalCount > 1 ? 's' : ''} ready.</p>;
+      return <p className="text-sm text-slate-600">{completedCount} dari {totalCount} dokumen siap.</p>;
     }
     return null;
   };

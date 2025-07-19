@@ -22,8 +22,20 @@ except Exception as e:
 
 async def extract_knowledge_graph_from_text(text: str) -> list:
     """
-    Extracts entities, labels, and relationships from text using an LLM.
-    Returns them as a list of 5-element tuples: [head, head_label, relation, tail, tail_label].
+    Mengekstrak entitas dan relasi dari teks menggunakan LLM.
+
+    Fungsi ini mengirimkan teks ke model generatif dengan prompt yang dirancang
+    untuk menghasilkan daftar triplet pengetahuan dalam format JSON.
+    Hasilnya kemudian divalidasi untuk memastikan formatnya benar.
+
+    Args:
+        text (str): Teks mentah untuk dianalisis.
+
+    Returns:
+        list: Sebuah list yang berisi list-list, di mana setiap list internal
+              merepresentasikan satu triplet pengetahuan dengan 5 elemen:
+              [head, head_label, relation, tail, tail_label].
+              Mengembalikan list kosong jika terjadi kegagalan.
     """
     if not text.strip():
         logger.info("Skipping knowledge graph extraction for empty text.")
@@ -78,7 +90,17 @@ async def extract_knowledge_graph_from_text(text: str) -> list:
 
 async def store_triplets_in_neo4j(structured_data: list, filename: str):
     """
-    Stores a list of structured data [head, head_label, relation, tail, tail_label] into Neo4j.
+    Menyimpan daftar triplet pengetahuan ke dalam database Neo4j.
+
+    Fungsi ini melakukan iterasi pada setiap triplet, melakukan sanitasi pada
+    label dan nama relasi agar sesuai dengan sintaks Cypher, dan menggunakan
+    perintah `MERGE` untuk membuat node dan relasi secara idempoten.
+    Setiap node juga diberikan properti `filename` untuk menjaga isolasi data
+    antar dokumen.
+
+    Args:
+        structured_data (list): List berisi triplet pengetahuan.
+        filename (str): Nama file asal data, untuk ditambahkan sebagai properti node.
     """
     if not structured_data:
         logger.info("No structured data to store.")
@@ -89,8 +111,7 @@ async def store_triplets_in_neo4j(structured_data: list, filename: str):
         driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
         with driver.session() as session:
             for head, head_label, relation, tail, tail_label in structured_data:
-                # === ROBUSTNESS FIX ===
-                # Assign a default label if the LLM fails to provide one.
+                # Menetapkan label default jika LLM gagal memberikannya untuk robustnes.
                 head_label = head_label or 'ENTITY'
                 tail_label = tail_label or 'ENTITY'
 

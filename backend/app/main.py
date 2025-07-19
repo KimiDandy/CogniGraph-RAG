@@ -35,10 +35,26 @@ class QueryRequest(BaseModel):
 
 @app.on_event("startup")
 async def startup_event():
+    """Mengonfigurasi Tesseract OCR saat aplikasi dimulai."""
     configure_tesseract()
 
 @app.post("/uploadfile/")
 async def create_upload_file(file: UploadFile):
+    """
+    Menerima, menyimpan, dan memproses file dokumen yang diunggah.
+
+    Fungsi ini menangani unggahan file, menyimpannya ke direktori lokal,
+    dan kemudian memicu pipeline pemrosesan dokumen secara sinkron.
+
+    Args:
+        file (UploadFile): File yang diunggah oleh pengguna, sesuai dengan standar FastAPI.
+
+    Returns:
+        dict: Konfirmasi bahwa file telah berhasil diproses dan diindeks.
+    
+    Raises:
+        HTTPException: Jika terjadi kesalahan saat menyimpan atau memproses file.
+    """
     filename = file.filename
     sanitized_filename = Path(filename).name
     upload_dir = Path("data/uploads")
@@ -51,7 +67,7 @@ async def create_upload_file(file: UploadFile):
         
         logger.info(f"File '{sanitized_filename}' saved. Starting synchronous processing...")
         
-        # Process the document directly and wait for it to finish
+
         await process_document(str(file_path))
         
         logger.info(f"Successfully processed and indexed {sanitized_filename}")
@@ -64,7 +80,20 @@ async def create_upload_file(file: UploadFile):
 @app.post("/query/")
 async def answer_query(item: QueryRequest):
     """
-    Receives a query, retrieves context from multiple documents, and returns an answer.
+    Menerima kueri, mengambil konteks dari dokumen, dan mengembalikan jawaban.
+
+    Endpoint ini menggunakan logika RAG untuk menjawab pertanyaan pengguna
+    berdasarkan konten dari file yang ditentukan dan riwayat percakapan.
+
+    Args:
+        item (QueryRequest): Objek yang berisi kueri, daftar nama file,
+                             dan riwayat percakapan (opsional).
+
+    Returns:
+        dict: Jawaban yang dihasilkan oleh sistem RAG.
+
+    Raises:
+        HTTPException: Jika terjadi kesalahan selama pemrosesan kueri.
     """
     try:
         logger.info(f"Received query: '{item.query}' for documents: {item.filenames}")

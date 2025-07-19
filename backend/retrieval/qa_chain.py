@@ -22,7 +22,19 @@ genai.configure(api_key=GOOGLE_API_KEY)
 
 async def vector_search_tool(query: str, filenames: List[str]) -> str:
     """
-    Performs a vector search in ChromaDB filtered by filename.
+    Melakukan pencarian vektor di ChromaDB untuk mengambil potongan teks yang relevan.
+
+    Fungsi ini berfungsi sebagai tool untuk mencari konteks dari data tidak terstruktur.
+    Pencarian dibatasi hanya pada dokumen yang ditentukan oleh `filenames` untuk
+    memastikan konteks berasal dari sumber yang benar.
+
+    Args:
+        query (str): Pertanyaan atau kueri pencarian dari pengguna.
+        filenames (List[str]): Daftar nama file yang menjadi target pencarian.
+
+    Returns:
+        str: String berisi gabungan potongan teks relevan yang ditemukan.
+             Mengembalikan string kosong jika tidak ada hasil atau terjadi error.
     """
     logger.info(f"Executing vector search for query: '{query}' on files: {filenames}")
     try:
@@ -53,8 +65,19 @@ async def vector_search_tool(query: str, filenames: List[str]) -> str:
 
 async def graph_search_tool(query: str) -> str:
     """
-    Generates a Cypher query from a question, executes it against Neo4j,
-    and returns a formatted string of the results.
+    Mengambil informasi dari knowledge graph Neo4j menggunakan kueri bahasa alami.
+
+    Proses ini terdiri dari dua tahap:
+    1.  Menggunakan LLM untuk mengubah pertanyaan pengguna menjadi query Cypher yang valid.
+    2.  Menjalankan query Cypher tersebut pada database Neo4j.
+    Hasilnya kemudian diformat menjadi string yang mudah dibaca.
+
+    Args:
+        query (str): Pertanyaan dalam bahasa alami dari pengguna.
+
+    Returns:
+        str: String berisi data terstruktur dari graph yang relevan dengan pertanyaan.
+             Mengembalikan string kosong jika tidak ada hasil atau terjadi error.
     """
     logger.info(f"Executing graph search for query: '{query}'")
     driver = None
