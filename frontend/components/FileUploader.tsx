@@ -72,20 +72,21 @@ const FileUploader: React.FC<FileUploaderProps> = ({ setUploadedFiles }) => {
   });
 
   return (
-    <div {...getRootProps()} className={`w-full h-full border-2 border-dashed rounded-xl flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 
-      ${isDragActive ? 'border-blue-500 bg-blue-100/50' : 'border-slate-300 hover:border-blue-400 hover:bg-slate-100/50'} 
-      ${isUploading ? 'bg-slate-100/80 border-slate-200 cursor-wait' : ''}`}>
+    <div 
+      {...getRootProps()} 
+      className={`relative block w-full rounded-lg border-2 border-dashed p-8 text-center transition-all duration-300
+        ${isDragActive ? 'border-indigo-600 bg-indigo-50' : 'border-gray-300'}
+        ${isUploading ? 'cursor-wait bg-gray-100' : 'cursor-pointer hover:border-indigo-400'}
+      `}
+    >
       <input {...getInputProps()} />
-      <div className="p-6">
-        <FileUp className="h-12 w-12 mx-auto text-slate-400 mb-4" />
-        <p className={`font-semibold ${isUploading ? 'text-slate-500' : 'text-slate-700'}`}>
-          {isUploading ? 'Sedang Mengunggah...' : 'Tarik & Lepas Dokumen'}
-        </p>
-        <p className="text-sm text-slate-500 mt-1">
-          {isUploading ? 'Harap tunggu' : 'atau klik untuk memilih file'}
-        </p>
-        {!isUploading && <p className="text-xs text-slate-400 mt-4">Mendukung: PDF, DOCX, TXT</p>}
-      </div>
+      <FileUp className="mx-auto h-10 w-10 text-gray-400" />
+      <span className="mt-2 block text-sm font-semibold text-indigo-600">
+        {isUploading ? 'Uploading...' : 'Click to upload or drag & drop'}
+      </span>
+      <p className="mt-1 block text-xs text-gray-500">
+        {isUploading ? 'Please wait...' : 'PDF, DOCX, PPTX, TXT'}
+      </p>
     </div>
   );
 };

@@ -12,6 +12,23 @@ interface DocumentLibraryProps {
 
 const DocumentLibrary: React.FC<DocumentLibraryProps> = ({ uploadedFiles, activeFiles, setActiveFiles }) => {
 
+  const processingCount = uploadedFiles.filter(f => f.status === 'processing').length;
+  const completedCount = uploadedFiles.filter(f => f.status === 'completed').length;
+  const totalCount = uploadedFiles.length;
+
+  const StatusSummary = () => {
+    if (processingCount > 0) {
+      return <p className="text-sm text-slate-600">Processing {processingCount} file{processingCount > 1 ? 's' : ''}...</p>;
+    }
+    if (completedCount === totalCount && totalCount > 0) {
+      return <p className="text-sm text-green-600">All {totalCount} document{totalCount > 1 ? 's' : ''} ready.</p>;
+    }
+    if (totalCount > 0) {
+      return <p className="text-sm text-slate-600">{completedCount} of {totalCount} document{totalCount > 1 ? 's' : ''} ready.</p>;
+    }
+    return null;
+  };
+
   const handleCheckboxChange = (filename: string) => {
     setActiveFiles(prev => 
       prev.includes(filename) 
@@ -30,8 +47,12 @@ const DocumentLibrary: React.FC<DocumentLibraryProps> = ({ uploadedFiles, active
   }
 
   return (
-    <div className="h-full overflow-y-auto pr-2">
-      <ul className="space-y-3">
+    <div className="h-full flex flex-col">
+      <div className="mb-3 text-center">
+        <StatusSummary />
+      </div>
+      <div className="flex-grow overflow-y-auto pr-2">
+        <ul className="space-y-3">
         {uploadedFiles.map(file => (
           <li key={file.name} className="flex items-center justify-between p-3 bg-slate-50/80 rounded-lg shadow-sm border border-slate-200/80">
             <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -46,22 +67,14 @@ const DocumentLibrary: React.FC<DocumentLibraryProps> = ({ uploadedFiles, active
               <label htmlFor={`checkbox-${file.name}`} className="text-sm font-medium text-slate-800 truncate cursor-pointer" title={file.name}>
                 {file.name}
               </label>
-            </div>
-            <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-              {file.status === 'processing' && <Loader className="w-4 h-4 text-slate-400 animate-spin" />}
-              {file.status === 'completed' && <Check className="w-4 h-4 text-green-500" />}
-              {file.status === 'error' && <AlertCircle className="w-4 h-4 text-red-500" />}
-              <span className={`text-xs font-semibold capitalize ${
-                file.status === 'completed' ? 'text-green-600' :
-                file.status === 'processing' ? 'text-slate-500' :
-                'text-red-600'
-              }`}>
-                {file.status}
-              </span>
+              {file.status === 'processing' && <Loader className="w-5 h-5 text-slate-400 animate-spin" />}
+              {file.status === 'completed' && <Check className="w-5 h-5 text-green-500" />}
+              {file.status === 'error' && <AlertCircle className="w-5 h-5 text-red-500" />}
             </div>
           </li>
         ))}
-      </ul>
+        </ul>
+      </div>
     </div>
   );
 };

@@ -2,19 +2,21 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { postQuery } from '@/lib/api';
-import { Message } from '../app/page';
+import { Message, Document } from '../app/page';
 import { Send, User, Bot, Loader2, MessageSquare } from 'lucide-react';
 
 interface ChatInterfaceProps {
   messages: Message[];
   onNewMessage: (message: Message) => void;
   activeFiles: string[];
+  uploadedFiles: Document[];
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ 
   messages, 
   onNewMessage, 
-  activeFiles
+  activeFiles,
+  uploadedFiles
 }) => {
   const [currentQuery, setCurrentQuery] = useState("");
   const [isQuerying, setIsQuerying] = useState(false);
@@ -48,11 +50,25 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   };
 
-  const isDisabled = activeFiles.length === 0 || isQuerying;
+  const isReadyForChat = uploadedFiles.some(file => file.status === 'completed');
+  const isDisabled = !isReadyForChat || activeFiles.length === 0 || isQuerying;
+
+  const getPlaceholder = () => {
+    if (uploadedFiles.length > 0 && !isReadyForChat) {
+      return "Processing documents...";
+    }
+    if (!isReadyForChat) {
+        return "Upload documents to begin chat.";
+    }
+    if (activeFiles.length === 0) {
+      return "Select a document to begin...";
+    }
+    return "Tanyakan sesuatu tentang dokumen Anda...";
+  };
 
   return (
-    <div className="bg-white/60 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 h-full flex flex-col">
-      <div ref={chatContainerRef} className="flex-grow p-4 sm:p-6 space-y-6 overflow-y-auto">
+    <div className="bg-white/60 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 flex flex-col h-[80vh] max-h-[80vh]">
+      <div ref={chatContainerRef} className="flex-grow p-4 sm:p-6 space-y-6 overflow-y-auto h-full">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center text-slate-500">
             <MessageSquare size={48} className="mb-4"/>
@@ -94,7 +110,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             type="text"
             value={currentQuery}
             onChange={(e) => setCurrentQuery(e.target.value)}
-            placeholder={activeFiles.length === 0 ? 'Pilih dokumen aktif untuk memulai...' : 'Ketik pertanyaan Anda...'}
+            placeholder={getPlaceholder()}
             className="w-full py-3 pl-4 pr-14 text-slate-800 bg-white/80 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 disabled:bg-slate-200/50"
             disabled={isDisabled}
           />
