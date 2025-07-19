@@ -8,9 +8,10 @@ import { uploadAndParseFile } from "@/lib/api";
 interface FileUploaderProps {
   setIsLoading: (isLoading: boolean) => void;
   setExtractedText: (text: string) => void;
+  setActiveFilename: (filename: string) => void;
 }
 
-const FileUploader: React.FC<FileUploaderProps> = ({ setIsLoading, setExtractedText }) => {
+const FileUploader: React.FC<FileUploaderProps> = ({ setIsLoading, setExtractedText, setActiveFilename }) => {
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) {
@@ -22,7 +23,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({ setIsLoading, setExtractedT
 
     try {
       const result = await uploadAndParseFile(file);
-      setExtractedText(result.extracted_text || "No text could be extracted.");
+      setExtractedText(result.message || "File processed, but no confirmation message received.");
+      setActiveFilename(result.filename);
     } catch (error) {
       console.error("Upload failed:", error);
       setExtractedText("Error: Failed to upload or parse the file.");

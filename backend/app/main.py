@@ -1,7 +1,11 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from ingestion.ocr_config import configure_tesseract
+from pydantic import BaseModel
 import shutil
 from pathlib import Path
-from ingestion.parser import parse_document # Assuming execution from backend root
+from ingestion.parser import parse_document
+from ingestion.indexer import process_and_store_embeddings
+from retrieval.hybrid_retriever import get_answer # Assuming execution from backend root
 import logging
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -10,6 +14,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Next RAG Backend")
+
+@app.on_event("startup")
+async def startup_event():
+    configure_tesseract()
 
 # Definisikan origin yang diizinkan (alamat frontend Anda)
 origins = [
@@ -28,6 +36,11 @@ app.add_middleware(
 
 # Define the base path for uploads relative to the backend root
 UPLOAD_DIRECTORY = Path("data/uploads")
+
+# Pydantic model for the query request
+class QueryRequest(BaseModel):
+    query: str
+    filename: str
 
 @app.post("/uploadfile/")
 async def create_upload_file(file: UploadFile = File(...) ):
@@ -55,7 +68,18 @@ async def create_upload_file(file: UploadFile = File(...) ):
             logger.error(f"Failed to parse {file.filename}: {extracted_text}")
             raise HTTPException(status_code=422, detail=extracted_text)
 
-        return {"filename": file.filename, "extracted_text": extracted_text}
+        # If parsing is successful, proceed to chunk, embed, and index the text
+        try:
+            await process_and_store_embeddings(extracted_text, filename=file.filename)
+            logger.info(f"Successfully indexed document: {file.filename}")
+        except Exception as e:
+            logger.error(f"Failed during embedding and indexing for {file.filename}: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Failed to index document: {str(e)}")
+
+        return {
+            "message": f"File '{file.filename}' processed, chunked, and embeddings stored successfully.",
+            "filename": file.filename
+        }
 
     except Exception as e:
         logger.error(f"An unexpected error occurred in the upload endpoint: {e}", exc_info=True)
@@ -63,3 +87,16 @@ async def create_upload_file(file: UploadFile = File(...) ):
     finally:
         # It's good practice to close the file handle from UploadFile
         file.file.close()
+
+@app.post("/query/")
+async def answer_query(item: QueryRequest):
+    """
+    Receives a query, retrieves relevant context, and returns a generated answer.
+    """
+    try:
+        logger.info(f"Received query for processing: {item.query}")
+        answer = await get_answer(query=item.query, filename=item.filename)
+        return {"answer": answer}
+    except Exception as e:
+        logger.error(f"Error processing query '{item.query}': {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"An internal server error occurred: {str(e)}")

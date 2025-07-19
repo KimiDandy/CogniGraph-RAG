@@ -17,18 +17,15 @@ async def parse_document(file_path: str) -> str:
     """
     logger.info(f"Starting parsing for document: {file_path}")
     try:
-        # Use unstructured's partition function to parse the document based on its type
-        elements = partition(filename=file_path)
+        # Use unstructured's partition function with the "hi_res" strategy
+        # to automatically engage OCR for images within the document.
+        elements = partition(filename=file_path, strategy="hi_res")
         
         # Join the text from all extracted elements with a double newline for separation
         extracted_text = "\n\n".join([el.text for el in elements])
-        
-        logger.info(f"Successfully parsed document: {file_path}")
+        logger.info(f"Successfully parsed document. Total characters: {len(extracted_text)}")
         return extracted_text
-    except FileNotFoundError:
-        logger.error(f"File not found at path: {file_path}")
-        return f"Error: File not found at {file_path}"
     except Exception as e:
-        # Catch other potential errors from the parsing library
-        logger.error(f"An error occurred during parsing of {file_path}: {e}", exc_info=True)
-        return f"Error: An unexpected error occurred during parsing: {str(e)}"
+        logger.error(f"Failed to parse document {file_path}: {e}", exc_info=True)
+        # Depending on requirements, you might want to return an empty string or re-raise
+        return ""

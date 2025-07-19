@@ -10,13 +10,14 @@ python = "^3.10"
 fastapi = "*"
 uvicorn = {extras = ["standard"], version = "*"}
 langchain = "*"
-unstructured = {extras = ["docx", "pdf"], version = "^0.18.9"}
+unstructured = {extras = ["docx", "ocr", "pdf"], version = "^0.18.9"}
 chromadb = "*"
 neo4j = "*"
 sentence-transformers = "*"
 python-dotenv = "*"
 pydantic = "*"
 python-multipart = "^0.0.20"
+google-generativeai = "^0.8.5"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
