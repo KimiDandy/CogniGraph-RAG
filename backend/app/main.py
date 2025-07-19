@@ -1,10 +1,11 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from ingestion.ocr_config import configure_tesseract
 from pydantic import BaseModel
 import shutil
 from pathlib import Path
 from ingestion.parser import parse_document
 from ingestion.indexer import process_and_store_embeddings
-from retrieval.qa_chain import get_rag_answer # Assuming execution from backend root
+from retrieval.hybrid_retriever import get_answer # Assuming execution from backend root
 import logging
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -13,6 +14,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Next RAG Backend")
+
+@app.on_event("startup")
+async def startup_event():
+    configure_tesseract()
 
 # Definisikan origin yang diizinkan (alamat frontend Anda)
 origins = [
@@ -90,7 +95,7 @@ async def answer_query(item: QueryRequest):
     """
     try:
         logger.info(f"Received query for processing: {item.query}")
-        answer = await get_rag_answer(query=item.query, filename=item.filename)
+        answer = await get_answer(query=item.query, filename=item.filename)
         return {"answer": answer}
     except Exception as e:
         logger.error(f"Error processing query '{item.query}': {e}", exc_info=True)
