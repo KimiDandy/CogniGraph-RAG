@@ -23,7 +23,7 @@ async def process_and_store_embeddings(extracted_text: str, filename: str):
     try:
         structured_data = await extract_knowledge_graph_from_text(extracted_text)
         if structured_data:
-            await store_triplets_in_neo4j(structured_data)
+            await store_triplets_in_neo4j(structured_data, filename=filename)
         else:
             logger.info("No structured data extracted, proceeding with standard chunking.")
     except Exception as e:

@@ -41,16 +41,15 @@ export const uploadFile = async (file: File, onProgress: (progress: number) => v
  * @param textContent The text content of the file.
  * @returns The JSON response from the API containing the answer.
  */
-export const postQuery = async (query: string, filename: string, chatHistory: Message[], textContent: string): Promise<{ answer: string }> => {
+export const postQuery = async (query: string, activeFiles: string[], chatHistory: Message[]): Promise<{ answer: string }> => {
   const response = await fetch(`${API_BASE_URL}/query/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
+        body: JSON.stringify({
       query,
-      filename,
-      text_content: textContent,
+      filenames: activeFiles,
       chat_history: chatHistory.map(m => ({ role: m.role, content: m.content }))
     }),
   });

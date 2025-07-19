@@ -76,7 +76,7 @@ async def extract_knowledge_graph_from_text(text: str) -> list:
         logger.error(f"Raw response was: {response.text if 'response' in locals() else 'No response'}")
         return []
 
-async def store_triplets_in_neo4j(structured_data: list):
+async def store_triplets_in_neo4j(structured_data: list, filename: str):
     """
     Stores a list of structured data [head, head_label, relation, tail, tail_label] into Neo4j.
     """
@@ -104,11 +104,11 @@ async def store_triplets_in_neo4j(structured_data: list):
                 
                 # Use MERGE to create nodes with specific labels and their relationship
                 query = (
-                    f"MERGE (h:{head_label_safe} {{name: $head}}) "
-                    f"MERGE (t:{tail_label_safe} {{name: $tail}}) "
+                    f"MERGE (h:{head_label_safe} {{name: $head, filename: $filename}}) "
+                    f"MERGE (t:{tail_label_safe} {{name: $tail, filename: $filename}}) "
                     f"MERGE (h)-[:`{relation_safe}`]->(t)"
                 )
-                session.run(query, head=str(head), tail=str(tail))
+                session.run(query, head=str(head), tail=str(tail), filename=filename)
         logger.info(f"Successfully stored {len(structured_data)} relationships in Neo4j.")
     except Exception as e:
         logger.error(f"Failed to store structured data in Neo4j: {e}", exc_info=True)
