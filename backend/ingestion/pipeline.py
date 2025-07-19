@@ -11,33 +11,21 @@ logger = logging.getLogger(__name__)
 
 UPLOAD_DIRECTORY = Path("data/uploads")
 
-async def process_document(file_path: str, filename: str, status_storage: dict):
-    """
-    The complete pipeline for ingesting a document, from saving to indexing.
-    This function is designed to be run in the background.
-    """
+async def process_document(file_path: str):
+    filename = Path(file_path).name
     try:
         logger.info(f"Starting document processing for: {file_path}")
-        status_storage[filename] = {"status": "processing", "message": "Extracting text..."}
-
-        # 1. Parse the document to extract text
-        extracted_text = await parse_document(file_path=file_path)
-        if extracted_text.startswith("Error:"):
-            raise Exception(extracted_text)
         
-        status_storage[filename] = {"status": "processing", "message": "Text extracted, indexing content..."}
+        # 1. Parse document
+        text_content = await parse_document(file_path)
+        if not text_content:
+            raise ValueError("Failed to extract text from document.")
 
-        # 2. Index the document content (Graph + Vector)
-        await process_and_store_embeddings(extracted_text, filename=filename)
-        
-        # 3. Mark as complete and include the extracted text
+        # 2. Index content (Vector + Graph)
+        await process_and_store_embeddings(text_content, filename=filename)
         logger.info(f"Successfully processed and indexed {filename}")
-        status_storage[filename] = {
-            "status": "complete", 
-            "message": f"File '{filename}' processed successfully.",
-            "text_content": extracted_text
-        }
 
     except Exception as e:
-        logger.error(f"Error processing {filename}: {e}", exc_info=True)
-        status_storage[filename] = {"status": "error", "message": str(e)}
+        logger.error(f"Error in processing pipeline for {filename}: {e}", exc_info=True)
+        # Re-raise the exception to be caught by the main endpoint
+        raise e

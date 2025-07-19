@@ -10,35 +10,26 @@ export interface Message {
   content: string;
 }
 
-export interface StatusResponse {
-  status: 'processing' | 'completed' | 'failed' | 'not_found';
-  text_content?: string;
-  message?: string;
-  progress?: number;
-}
-
-export const uploadFile = async (file: File): Promise<{ filename: string; message: string }> => {
+export const uploadFile = async (file: File, onProgress: (progress: number) => void): Promise<{ filename: string; message: string }> => {
   const formData = new FormData();
   formData.append('file', file);
+
+  // Since the backend is now synchronous, we don't have progress updates during upload.
+  // We can simulate a bit of progress for UX.
+  onProgress(50); // Simulate progress
 
   const response = await fetch(`${API_BASE_URL}/uploadfile/`, {
     method: 'POST',
     body: formData,
   });
 
+  onProgress(100); // Mark as complete
+
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: 'An unknown error occurred.' }));
-    throw new Error(errorData.detail || 'Failed to upload file.');
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'File upload failed');
   }
 
-  return response.json();
-};
-
-export const checkStatus = async (filename: string): Promise<StatusResponse> => {
-  const response = await fetch(`${API_BASE_URL}/status/${filename}`);
-  if (!response.ok) {
-    throw new Error('Network response was not ok when checking status');
-  }
   return response.json();
 };
 

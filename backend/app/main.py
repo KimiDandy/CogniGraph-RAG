@@ -1,13 +1,12 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks, Path
-from ingestion.ocr_config import configure_tesseract
+from fastapi import FastAPI, File, UploadFile, HTTPException
 from pydantic import BaseModel
-import shutil
-import pathlib
+from pathlib import Path
 from ingestion.pipeline import process_document
+from ingestion.ocr_config import configure_tesseract
 from retrieval.hybrid_retriever import get_answer
 import logging
 from fastapi.middleware.cors import CORSMiddleware
-from retrieval.conversational_logic import rephrase_question_with_history
+
 from typing import Optional, List, Dict
 
 logging.basicConfig(level=logging.INFO)
@@ -24,9 +23,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# In-memory storage for task status and results
-processing_status = {}
-
 class StatusResponse(BaseModel):
     status: str
     message: Optional[str] = None
@@ -35,55 +31,48 @@ class StatusResponse(BaseModel):
 class QueryRequest(BaseModel):
     query: str
     filename: str
-    history: Optional[List[Dict[str, str]]] = None
+    text_content: str # This is sent by the frontend but not used in the reverted logic
+    history: Optional[List[Dict[str, str]]] = None # Kept for model compatibility, but will be ignored
 
 @app.on_event("startup")
 async def startup_event():
     configure_tesseract()
 
 @app.post("/uploadfile/")
-async def create_upload_file(background_tasks: BackgroundTasks, file: UploadFile = File(...) ):
-    if not file.filename:
-        raise HTTPException(status_code=400, detail="No file name provided")
-
-    safe_filename = file.filename.replace(" ", "_")
-    upload_dir = pathlib.Path("data/uploads")
+async def create_upload_file(file: UploadFile):
+    filename = file.filename
+    sanitized_filename = Path(filename).name
+    upload_dir = Path("data/uploads")
     upload_dir.mkdir(parents=True, exist_ok=True)
-    file_path = upload_dir / safe_filename
+    file_path = upload_dir / sanitized_filename
 
-    # Save the file immediately
     try:
         with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-    finally:
-        file.file.close()
+            buffer.write(await file.read())
+        
+        logger.info(f"File '{sanitized_filename}' saved. Starting synchronous processing...")
+        
+        # Process the document directly and wait for it to finish
+        await process_document(str(file_path))
+        
+        logger.info(f"Successfully processed and indexed {sanitized_filename}")
+        return {"filename": sanitized_filename, "message": "File processed and indexed successfully."}
 
-    # Set initial status
-    processing_status[safe_filename] = {"status": "processing", "message": "Upload successful, starting processing..."}
-    
-    # Run the processing in the background with the file path
-    background_tasks.add_task(process_document, str(file_path), safe_filename, processing_status)
-
-    return {"filename": safe_filename, "message": f"File '{safe_filename}' uploaded. Processing in background."}
-
-@app.get("/status/{filename}", response_model=StatusResponse)
-async def get_status(filename: str = Path(..., description="The name of the file to check status for")):
-    status = processing_status.get(filename, {"status": "not_found", "message": "File not found."})
-    return status
+    except Exception as e:
+        logger.error(f"Error during file processing for {sanitized_filename}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Could not save or process file: {str(e)}")
 
 @app.post("/query/")
 async def answer_query(item: QueryRequest):
     """
-    Receives a query, rephrases it based on history, retrieves context, and returns an answer.
+    Receives a query, retrieves context, and returns an answer.
+    (Conversational logic has been removed as per user request).
     """
     try:
-        logger.info(f"Received query: '{item.query}' for document: '{item.filename}' with history.")
+        logger.info(f"Received query: '{item.query}' for document: '{item.filename}'")
         
-        # Rephrase the question to be standalone
-        standalone_question = await rephrase_question_with_history(item.query, item.history or [])
-        
-        # Get the answer using the rephrased, standalone question
-        answer = await get_answer(query=standalone_question, filename=item.filename)
+        # Get the answer using the original question, ignoring chat history.
+        answer = await get_answer(query=item.query, filename=item.filename)
         return {"answer": answer}
     except Exception as e:
         logger.error(f"Error processing query '{item.query}': {e}", exc_info=True)

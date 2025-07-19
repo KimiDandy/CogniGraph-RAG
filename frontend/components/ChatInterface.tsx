@@ -10,8 +10,7 @@ interface ChatInterfaceProps {
   onNewMessage: (message: Message) => void;
   filename: string;
   isChatActive: boolean;
-  isProcessing: boolean; // From the uploader
-  initialTextContent: string;
+  textContent: string;
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ 
@@ -19,8 +18,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   onNewMessage, 
   filename, 
   isChatActive, 
-  isProcessing, 
-  initialTextContent 
+  textContent 
 }) => {
   const [currentQuery, setCurrentQuery] = useState("");
   const [isQuerying, setIsQuerying] = useState(false);
@@ -43,7 +41,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
     try {
       // Pass the previous messages for context/history
-      const result = await postQuery(currentQuery, filename, messages, initialTextContent);
+      const result = await postQuery(currentQuery, filename, messages, textContent);
       const assistantMessage: Message = { role: 'assistant', content: result.answer };
       onNewMessage(assistantMessage);
     } catch (error) {
@@ -55,12 +53,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   };
 
-  const isDisabled = isProcessing || isQuerying || !isChatActive;
+  const isDisabled = !isChatActive || isQuerying;
 
   return (
     <div className="bg-white/60 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 h-full flex flex-col">
       <div ref={chatContainerRef} className="flex-grow p-4 sm:p-6 space-y-6 overflow-y-auto">
-        {!isChatActive ? (
+        {messages.length === 0 && !isChatActive ? (
           <div className="h-full flex flex-col items-center justify-center text-center text-slate-500">
             <MessageSquare size={48} className="mb-4"/>
             <h2 className="text-xl font-semibold text-slate-700">Selamat Datang di CogniGraph</h2>

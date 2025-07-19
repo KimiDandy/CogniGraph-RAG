@@ -12,43 +12,24 @@ export interface Message {
 
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [currentFile, setCurrentFile] = useState<string>('');
-  const [error, setError] = useState<string>('');
   const [isChatActive, setIsChatActive] = useState(false);
+  const [currentFilename, setCurrentFilename] = useState<string>("");
+  const [textContent, setTextContent] = useState<string>("");
+
+  const handleUploadComplete = (filename: string, text: string) => {
+    setCurrentFilename(filename);
+    setTextContent(text);
+    setIsChatActive(true);
+    setMessages([
+      {
+        role: 'assistant',
+        content: `Dokumen "${filename}" telah berhasil dianalisis. Silakan ajukan pertanyaan Anda.`
+      }
+    ]);
+  };
 
   const handleNewMessage = (message: Message) => {
-    setMessages((prevMessages) => [...prevMessages, message]);
-  };
-
-  const handleProcessingStart = (filename: string) => {
-    setIsProcessing(true);
-    setCurrentFile(filename);
-    setError('');
-    setMessages([]);
-    setIsChatActive(false);
-  };
-
-  const handleProcessingComplete = (status: { status: string; text_content?: string; message?: string }) => {
-    setIsProcessing(false);
-    if (status.status === 'completed' && status.text_content) {
-      const welcomeMessage = {
-        role: 'assistant' as const,
-        content: `Dokumen "${currentFile}" telah berhasil dianalisis. Apa yang ingin Anda ketahui?`,
-        text_content: status.text_content,
-      };
-      setMessages([welcomeMessage]);
-      setIsChatActive(true);
-    } else {
-      setError(status.message || 'Gagal memproses dokumen.');
-      setIsChatActive(false);
-    }
-  };
-
-  const handleProcessingError = (errorMessage: string) => {
-    setIsProcessing(false);
-    setError(errorMessage);
-    setIsChatActive(false);
+    setMessages(prevMessages => [...prevMessages, message]);
   };
 
   return (
@@ -72,12 +53,8 @@ export default function Home() {
               </p>
             </header>
             <FileUploader
-              onProcessingStart={handleProcessingStart}
-              onProcessingComplete={handleProcessingComplete}
-              onProcessingError={handleProcessingError}
-              isProcessing={isProcessing}
-              error={error}
-              currentFile={currentFile}
+              onUploadComplete={handleUploadComplete}
+              isChatActive={isChatActive}
             />
           </div>
         </div>
@@ -85,12 +62,11 @@ export default function Home() {
         {/* Right Panel: Chat Interface */}
         <div className="lg:col-span-2 h-full">
           <ChatInterface
-            messages={messages}
-            onNewMessage={handleNewMessage}
-            filename={currentFile}
             isChatActive={isChatActive}
-            isProcessing={isProcessing}
-            initialTextContent={messages.find(m => m.role === 'assistant')?.text_content || ''}
+            onNewMessage={handleNewMessage}
+            messages={messages}
+            filename={currentFilename}
+            textContent={textContent}
           />
         </div>
       </main>
