@@ -20,6 +20,18 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 genai.configure(api_key=GOOGLE_API_KEY)
 
+chroma_client = chromadb.PersistentClient(path=CHROMA_PATH)
+sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(
+    model_name=EMBEDDING_MODEL_NAME
+)
+chroma_collection = chroma_client.get_or_create_collection(
+    name=CHROMA_COLLECTION_NAME, 
+    embedding_function=sentence_transformer_ef,
+    metadata={"hnsw:space": "cosine"}
+)
+
+neo4j_driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
+
 async def vector_search_tool(query: str, filenames: List[str]) -> str:
     """
     Melakukan pencarian vektor di ChromaDB untuk mengambil potongan teks yang relevan.
@@ -38,15 +50,8 @@ async def vector_search_tool(query: str, filenames: List[str]) -> str:
     """
     logger.info(f"Executing vector search for query: '{query}' on files: {filenames}")
     try:
-        client = chromadb.PersistentClient(path=CHROMA_PATH)
-        sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(
-            model_name=EMBEDDING_MODEL_NAME
-        )
-        collection = client.get_collection(
-            name=CHROMA_COLLECTION_NAME, embedding_function=sentence_transformer_ef
-        )
-        
-        results = collection.query(
+        # Menggunakan koleksi ChromaDB yang sudah diinisialisasi
+        results = chroma_collection.query(
             query_texts=[query], 
             n_results=5, 
             where={"source_document": {"$in": filenames}}
@@ -80,7 +85,6 @@ async def graph_search_tool(query: str) -> str:
              Mengembalikan string kosong jika tidak ada hasil atau terjadi error.
     """
     logger.info(f"Executing graph search for query: '{query}'")
-    driver = None
     try:
         model = genai.GenerativeModel(LLM_MODEL_NAME)
         cypher_prompt = f"""
@@ -109,8 +113,8 @@ async def graph_search_tool(query: str) -> str:
             logger.warning("LLM failed to generate a Cypher query.")
             return ""
 
-        driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
-        with driver.session() as session:
+        # Menggunakan driver Neo4j yang sudah diinisialisasi
+        with neo4j_driver.session() as session:
             result = session.run(cypher_query)
             graph_data = [record.data() for record in result]
             
@@ -130,6 +134,3 @@ async def graph_search_tool(query: str) -> str:
     except Exception as e:
         logger.error(f"Error during graph search: {e}", exc_info=True)
         return ""
-    finally:
-        if driver:
-            driver.close()
