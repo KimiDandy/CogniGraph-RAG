@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { postQuery } from '@/lib/api';
 import { Message, Document } from '../app/page';
 import { Send, User, Bot, Loader2, MessageSquare } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 interface ChatInterfaceProps {
   messages: Message[];
@@ -84,7 +85,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 </div>
               )}
               <div className={`px-4 py-3 rounded-2xl max-w-md md:max-w-lg lg:max-w-2xl shadow-sm ${message.role === 'user' ? 'bg-blue-500 text-white rounded-br-none' : 'bg-white text-slate-800 rounded-bl-none'}`}>
-                <p className="whitespace-pre-wrap text-sm sm:text-base">{message.content}</p>
+                {message.role === 'assistant' ? (
+                  <div className="prose prose-sm max-w-full text-slate-800">
+                    <ReactMarkdown>
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
+                ) : (
+                  <p className="whitespace-pre-wrap text-sm sm:text-base">{message.content}</p>
+                )}
               </div>
               {message.role === 'user' && (
                  <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center flex-shrink-0">
