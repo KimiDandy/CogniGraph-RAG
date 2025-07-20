@@ -1,5 +1,6 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks
 from pydantic import BaseModel
+import shutil
 from pathlib import Path
 from ingestion.pipeline import process_document
 from ingestion.ocr_config import configure_tesseract
@@ -39,7 +40,7 @@ async def startup_event():
     configure_tesseract()
 
 @app.post("/uploadfile/")
-async def create_upload_file(file: UploadFile):
+async def create_upload_file(file: UploadFile, background_tasks: BackgroundTasks):
     """
     Menerima, menyimpan, dan memproses file dokumen yang diunggah.
 
@@ -62,16 +63,17 @@ async def create_upload_file(file: UploadFile):
     file_path = upload_dir / sanitized_filename
 
     try:
+        # Simpan file ke disk
         with open(file_path, "wb") as buffer:
-            buffer.write(await file.read())
+            shutil.copyfileobj(file.file, buffer)
         
-        logger.info(f"File '{sanitized_filename}' saved. Starting synchronous processing...")
-        
+        logger.info(f"File '{sanitized_filename}' saved to '{file_path}'")
 
-        await process_document(str(file_path))
+        # Jadwalkan pemrosesan dokumen sebagai tugas latar belakang
+        background_tasks.add_task(process_document, str(file_path))
         
-        logger.info(f"Successfully processed and indexed {sanitized_filename}")
-        return {"filename": sanitized_filename, "message": "File processed and indexed successfully."}
+        logger.info(f"Processing for {sanitized_filename} has been started in the background.")
+        return {"filename": sanitized_filename, "message": "File upload successful. Processing has started in the background."}
 
     except Exception as e:
         logger.error(f"Error during file processing for {sanitized_filename}: {e}", exc_info=True)
