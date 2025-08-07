@@ -2,29 +2,52 @@ import os
 import logging
 from dotenv import load_dotenv
 
-
-# Load environment variables from .env file
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# --- Google Gemini API Key ---
+# ==============================================================================
+# SECTION 1: KREDENSIAL & KONFIGURASI EKSTERNAL
+# ==============================================================================
+
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-
 if not GOOGLE_API_KEY:
-    logger.warning("GOOGLE_API_KEY not found in environment variables. Please create a .env file and set it.")
+    logger.warning("GOOGLE_API_KEY tidak ditemukan di environment. Pastikan file .env sudah ada dan terisi.")
 
-# --- Neo4j Database Credentials ---
+# Pengguna Windows mungkin perlu memverifikasi path ini sesuai dengan instalasi lokal.
+# Untuk pengguna Linux/macOS, seringkali tidak perlu diatur jika sudah ada di PATH sistem.
+TESSERACT_PATH = os.getenv("TESSERACT_PATH", r"C:\Program Files\Tesseract-OCR\tesseract.exe")
+
+# --- Kredensial Database Neo4j ---
 NEO4J_URI = os.getenv("NEO4J_URI")
 NEO4J_USERNAME = os.getenv("NEO4J_USERNAME")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
-
 if not all([NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD]):
-    logger.warning("Neo4j credentials not found in environment variables. Please check your .env file.")
+    logger.warning("Kredensial Neo4j tidak lengkap. Pastikan file .env sudah dikonfigurasi.")
 
+# ==============================================================================
+# SECTION 2: KONFIGURASI PENYIMPANAN & MODEL
+# ==============================================================================
 
-# --- Graph Extraction Prompt ---
+# --- Konfigurasi Vector Store (ChromaDB) ---
+CHROMA_DB_PATH = "data/chroma_db"
+CHROMA_COLLECTION_NAME = "cognigraph_rag"
+
+# --- Konfigurasi Model AI ---
+# Nama model yang digunakan untuk tugas LLM dan embedding.
+LLM_MODEL_NAME = "gemini-2.5-flash"
+EMBEDDING_MODEL_NAME = "intfloat/multilingual-e5-large"
+
+# ==============================================================================
+# SECTION 3: TEMPLATE PROMPT UNTUK LLM
+# ==============================================================================
+
+# --- 1. Prompt Ekstraksi Knowledge Graph ---
+# Prompt ini menginstruksikan LLM untuk bertindak sebagai ahli Information Extraction.
+# Tujuannya adalah mengubah teks tidak terstruktur menjadi data terstruktur (triplets)
+# yang akan menjadi fondasi knowledge graph. Aturan yang ketat (label, format JSON)
+# diberikan untuk memastikan output yang konsisten dan mudah diproses.
 GRAPH_EXTRACTION_PROMPT = """
 Anda adalah ahli dalam Information Extraction. Dari teks di bawah ini, ekstrak semua entitas penting dan hubungan di antaranya.
 Tugas Anda adalah mengidentifikasi Subjek, Label Subjek, Hubungan, Objek, dan Label Objek.
@@ -54,25 +77,9 @@ Teks untuk dianalisis:
 JSON Output:
 """
 
-# --- Cypher Query Templates ---
-NEO4J_MERGE_QUERY = (
-    "MERGE (h:{head_label} {{name: $head, filename: $filename}}) "
-    "MERGE (t:{tail_label} {{name: $tail, filename: $filename}}) "
-    "MERGE (h)-[:`{relation}`]->(t)"
-)
-
-
-# --- LLM Model Name ---
-
-# --- Vector Database Path ---
-CHROMA_DB_PATH = "data/chroma_db"
-CHROMA_COLLECTION_NAME = "cognigraph_rag"
-
-
-LLM_MODEL_NAME = "gemini-1.5-flash"
-EMBEDDING_MODEL_NAME = "intfloat/multilingual-e5-large"
-
-# --- Question Rephrasing Prompt ---
+# --- 2. Prompt Formulasi Ulang Pertanyaan (Rephrasing) ---
+# Dalam mode percakapan, pengguna sering mengajukan pertanyaan lanjutan (e.g., "siapa dia?").
+# Prompt ini bertugas mengubah pertanyaan lanjutan tersebut menjadi pertanyaan mandiri dengan menyertakan konteks dari riwayat percakapan, agar dapat dipahami oleh sistem RAG.
 REPHRASE_QUESTION_PROMPT = """Based on the following conversation history, rephrase the "Follow Up Input" to be a standalone question that contains all the necessary context from the chat history.
 
 Chat History:
@@ -82,7 +89,10 @@ Follow Up Input: {query}
 
 Standalone question:"""
 
-# --- Cypher Generation Prompt ---
+# --- 3. Prompt Pembangkitan Kueri Cypher ---
+# Prompt ini mengubah pertanyaan dalam bahasa alami menjadi kueri Cypher yang sintaktis.
+# Ini adalah jembatan antara pertanyaan pengguna dan knowledge graph. Instruksi untuk tidak
+# menerjemahkan entitas penting untuk memastikan kueri cocok dengan data di Neo4j.
 CYPHER_GENERATION_PROMPT = """Anda adalah ahli Cypher. Ubah pertanyaan berikut menjadi query Cypher untuk Neo4j.
 Skema Graph: Node memiliki label spesifik seperti :PERSON, :ROLE, :ORGANIZATION, dll. dan properti 'name'.
 Hanya kembalikan query-nya, tanpa penjelasan atau markdown.
@@ -100,7 +110,9 @@ Pertanyaan: {query}
 Query:
 """
 
-# --- Final Answer Prompt ---
+# --- 4. Prompt Jawaban Akhir ---
+# Prompt ini memberikan semua konteks yang telah dikumpulkan (dari vector search dan graph search) kepada LLM dan memintanya untuk
+# menyusun jawaban akhir yang koheren, akurat, dan langsung dalam Bahasa Indonesia.
 FINAL_ANSWER_PROMPT = """
 Anda adalah asisten AI yang cerdas dan ahli. Berdasarkan informasi yang sangat relevan di bawah ini—yang mencakup teks asli dan fakta-fakta kunci yang diekstrak—jawablah pertanyaan pengguna secara akurat dan langsung dalam Bahasa Indonesia.
 
@@ -114,3 +126,17 @@ PERTANYAAN PENGGUNA:
 
 JAWABAN ANDA:
 """
+
+# ==============================================================================
+# SECTION 4: TEMPLATE KUERI DATABASE
+# ==============================================================================
+
+# --- Kueri MERGE untuk Neo4j ---
+# Kueri ini digunakan untuk menyimpan triplet ke Neo4j.
+# `MERGE` akan membuat node atau relasi hanya jika belum ada, mencegah duplikasi
+# data jika dokumen yang sama diproses ulang. Properti `filename` memastikan data dari dokumen yang berbeda tetap terisolasi.
+NEO4J_MERGE_QUERY = (
+    "MERGE (h:{head_label} {{name: $head, filename: $filename}}) "
+    "MERGE (t:{tail_label} {{name: $tail, filename: $filename}}) "
+    "MERGE (h)-[:`{relation}`]->(t)"
+)

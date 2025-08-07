@@ -65,7 +65,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     if (activeFiles.length === 0) {
       return "Pilih dokumen untuk memulai...";
     }
-    return "Tanyakan sesuatu tentang dokumen Anda...";
+    return "Tanyakan sesuatu tentang dokumen";
   };
 
   return (
@@ -75,7 +75,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           <div className="h-full flex flex-col items-center justify-center text-center text-slate-500">
             <MessageSquare size={48} className="mb-4"/>
             <h2 className="text-xl font-semibold text-slate-700">Selamat Datang di CogniGraph</h2>
-            <p>Unggah dokumen di panel kiri untuk memulai analisis dan percakapan cerdas Anda.</p>
+            <p>Unggah dokumen di panel kiri untuk memulai analisis dan percakapan.</p>
           </div>
         ) : (
           messages.map((message, index) => (

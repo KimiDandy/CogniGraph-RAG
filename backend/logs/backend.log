@@ -87,3 +87,152 @@
 2025-08-07 21:37:21.562 | INFO     | app.main:create_upload_file:112 - Processing for 254_Kimi_Dandy_Yudanarko_3_4-1.pdf started in the background.
 2025-08-07 21:37:25.815 | INFO     | app.main:answer_query:122 - Received query: 'siapa manajer tefa?' for documents: ['dok ujicoba2.pdf']
 2025-08-07 21:37:34.304 | INFO     | app.main:answer_query:122 - Received query: 'siapa manajer tefa?' for documents: ['dok ujicoba2.pdf', '254_Kimi_Dandy_Yudanarko_3_4-1.pdf']
+2025-08-07 21:51:12.644 | INFO     | app.main:lifespan:63 - Application Shutdown: Cleaning up resources...
+2025-08-07 21:51:12.646 | INFO     | app.main:lifespan:66 - Neo4j driver connection closed.
+2025-08-07 21:51:12.646 | INFO     | app.main:lifespan:67 - Resource cleanup complete.
+2025-08-07 21:51:20.410 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 21:51:20.410 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 21:51:22.474 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 21:51:22.606 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:01:50.313 | INFO     | app.main:lifespan:42 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:01:50.313 | INFO     | app.main:lifespan:46 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:01:52.375 | INFO     | app.main:lifespan:51 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:01:52.446 | INFO     | app.main:lifespan:55 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:02:03.562 | INFO     | app.main:lifespan:60 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:02:38.842 | INFO     | app.main:create_upload_file:122 - File 'dok ujicoba2.pdf' berhasil disimpan di 'data\uploads\dok ujicoba2.pdf'
+2025-08-07 22:02:38.842 | INFO     | app.main:create_upload_file:135 - Proses ingesti untuk 'dok ujicoba2.pdf' telah dijadwalkan.
+2025-08-07 22:02:46.316 | INFO     | app.main:create_upload_file:122 - File '254_Kimi_Dandy_Yudanarko_3_4-1.pdf' berhasil disimpan di 'data\uploads\254_Kimi_Dandy_Yudanarko_3_4-1.pdf'
+2025-08-07 22:02:46.316 | INFO     | app.main:create_upload_file:135 - Proses ingesti untuk '254_Kimi_Dandy_Yudanarko_3_4-1.pdf' telah dijadwalkan.
+2025-08-07 22:02:51.234 | INFO     | app.main:answer_query:158 - Menerima kueri: 'siapa manajer tefa?' pada dokumen: ['dok ujicoba2.pdf']
+2025-08-07 22:03:29.522 | INFO     | app.main:lifespan:72 - Shutdown Aplikasi: Menutup koneksi dan membersihkan sumber daya...
+2025-08-07 22:03:29.522 | INFO     | app.main:lifespan:75 - Koneksi driver Neo4j berhasil ditutup.
+2025-08-07 22:03:29.523 | INFO     | app.main:lifespan:76 - Pembersihan sumber daya selesai.
+2025-08-07 22:03:47.093 | INFO     | app.main:lifespan:42 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:03:47.093 | INFO     | app.main:lifespan:46 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:03:49.153 | INFO     | app.main:lifespan:51 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:03:49.278 | INFO     | app.main:lifespan:55 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:04:14.353 | INFO     | app.main:lifespan:42 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:04:14.354 | INFO     | app.main:lifespan:46 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:04:16.402 | INFO     | app.main:lifespan:51 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:04:16.532 | INFO     | app.main:lifespan:55 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:04:29.395 | INFO     | app.main:lifespan:60 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:04:37.500 | INFO     | app.main:create_upload_file:122 - File 'dok ujicoba2.pdf' berhasil disimpan di 'data\uploads\dok ujicoba2.pdf'
+2025-08-07 22:04:37.500 | INFO     | app.main:create_upload_file:135 - Proses ingesti untuk 'dok ujicoba2.pdf' telah dijadwalkan.
+2025-08-07 22:04:44.295 | INFO     | app.main:create_upload_file:122 - File '254_Kimi_Dandy_Yudanarko_3_4-1.pdf' berhasil disimpan di 'data\uploads\254_Kimi_Dandy_Yudanarko_3_4-1.pdf'
+2025-08-07 22:04:44.295 | INFO     | app.main:create_upload_file:135 - Proses ingesti untuk '254_Kimi_Dandy_Yudanarko_3_4-1.pdf' telah dijadwalkan.
+2025-08-07 22:04:53.029 | INFO     | app.main:answer_query:158 - Menerima kueri: 'siapa manajer tefa?' pada dokumen: ['dok ujicoba2.pdf']
+2025-08-07 22:05:04.640 | INFO     | app.main:answer_query:158 - Menerima kueri: 'bukan itu' pada dokumen: ['dok ujicoba2.pdf']
+2025-08-07 22:05:30.793 | INFO     | app.main:lifespan:72 - Shutdown Aplikasi: Menutup koneksi dan membersihkan sumber daya...
+2025-08-07 22:05:30.794 | INFO     | app.main:lifespan:75 - Koneksi driver Neo4j berhasil ditutup.
+2025-08-07 22:05:30.795 | INFO     | app.main:lifespan:76 - Pembersihan sumber daya selesai.
+2025-08-07 22:06:54.664 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:06:54.664 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:06:56.711 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:06:56.779 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:07:08.911 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:07:09.680 | INFO     | app.main:lifespan:69 - Shutdown Aplikasi: Menutup koneksi dan membersihkan sumber daya...
+2025-08-07 22:07:09.681 | INFO     | app.main:lifespan:72 - Koneksi driver Neo4j berhasil ditutup.
+2025-08-07 22:07:09.681 | INFO     | app.main:lifespan:73 - Pembersihan sumber daya selesai.
+2025-08-07 22:07:16.545 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:07:16.545 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:07:18.593 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:07:18.662 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:07:30.676 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:07:37.744 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:07:37.744 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:07:39.799 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:07:39.867 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:07:52.403 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:07:59.397 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:07:59.397 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:08:01.476 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:08:01.545 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:08:13.857 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:08:21.169 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:08:21.171 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:08:23.223 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:08:23.294 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:08:35.419 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:08:42.560 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:08:42.561 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:08:44.606 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:08:44.681 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:08:57.599 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:09:04.946 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:09:04.946 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:09:07.002 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:09:07.076 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:09:19.038 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:09:25.734 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:09:25.735 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:09:27.777 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:09:27.845 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:09:39.576 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:09:46.691 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:09:46.691 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:09:48.760 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:09:48.828 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:10:01.291 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:10:08.612 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:10:08.612 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:10:10.651 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:10:10.718 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:10:22.642 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:10:29.711 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:10:29.712 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:10:31.746 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:10:31.819 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:10:43.743 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:10:50.727 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:10:50.728 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:10:52.779 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:10:52.847 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:11:04.794 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:11:12.178 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:11:12.178 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:11:14.218 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:11:14.298 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:11:26.729 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:11:33.796 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:11:33.796 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:11:35.826 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:11:35.900 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:11:48.009 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:11:55.078 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:11:55.078 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:11:57.136 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:11:57.206 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:12:08.810 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:12:16.137 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:12:16.137 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:12:18.190 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:12:18.255 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:12:31.028 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:12:38.171 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:12:38.171 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:12:40.231 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:12:40.299 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:12:52.251 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:12:59.253 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:12:59.253 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:13:01.295 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:13:01.366 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:13:13.690 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:13:21.197 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:13:21.197 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:13:23.257 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:13:23.337 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:13:35.323 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:13:42.195 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:13:42.195 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:13:44.238 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:13:44.307 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:14:09.958 | INFO     | app.main:lifespan:39 - Startup Aplikasi: Menginisialisasi semua sumber daya...
+2025-08-07 22:14:09.958 | INFO     | app.main:lifespan:43 - Konfigurasi Tesseract OCR berhasil.
+2025-08-07 22:14:11.999 | INFO     | app.main:lifespan:48 - Driver Neo4j berhasil diinisialisasi dan koneksi terverifikasi.
+2025-08-07 22:14:12.113 | INFO     | app.main:lifespan:52 - Klien ChromaDB diinisialisasi dari path: data/chroma_db
+2025-08-07 22:14:24.916 | INFO     | app.main:lifespan:57 - Model AI (Embedding dan Chat) berhasil diinisialisasi.
+2025-08-07 22:15:14.897 | INFO     | app.main:create_upload_file:113 - File 'dok ujicoba2.pdf' berhasil disimpan di 'data\uploads\dok ujicoba2.pdf'
+2025-08-07 22:15:14.897 | INFO     | app.main:create_upload_file:126 - Proses ingesti untuk 'dok ujicoba2.pdf' telah dijadwalkan.
+2025-08-07 22:15:22.491 | INFO     | app.main:create_upload_file:113 - File '254_Kimi_Dandy_Yudanarko_3_4-1.pdf' berhasil disimpan di 'data\uploads\254_Kimi_Dandy_Yudanarko_3_4-1.pdf'
+2025-08-07 22:15:22.492 | INFO     | app.main:create_upload_file:126 - Proses ingesti untuk '254_Kimi_Dandy_Yudanarko_3_4-1.pdf' telah dijadwalkan.

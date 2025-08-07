@@ -6,13 +6,16 @@ logger = logging.getLogger(__name__)
 
 def _format_chat_history(chat_history: list[dict]) -> str:
     """
-    Memformat riwayat percakapan dari list of dict menjadi sebuah string tunggal.
+    Memformat riwayat percakapan dari struktur list-of-dict menjadi string tunggal.
+
+    Tujuan dari pemformatan ini adalah untuk menyajikan riwayat percakapan dalam format
+    yang sederhana dan mudah dibaca oleh LLM saat membuat pertanyaan mandiri.
 
     Args:
-        chat_history (list[dict]): Riwayat percakapan dalam format standar.
+        chat_history (list[dict]): Riwayat percakapan dalam format standar aplikasi.
 
     Returns:
-        str: String yang berisi seluruh riwayat percakapan.
+        str: String yang berisi seluruh dialog percakapan.
     """
     if not chat_history:
         return ""
@@ -26,38 +29,40 @@ def _format_chat_history(chat_history: list[dict]) -> str:
 
 async def rephrase_question_with_history(query: str, chat_history: list, chat_model) -> str:
     """
-    Memformulasikan ulang pertanyaan pengguna berdasarkan riwayat percakapan.
+    Memformulasikan ulang pertanyaan pengguna menjadi pertanyaan mandiri (standalone).
 
-    Tujuannya adalah untuk mengubah pertanyaan lanjutan yang mungkin ambigu
-    (misalnya, "siapa namanya?") menjadi pertanyaan yang mandiri dan lengkap
-    (misalnya, "siapa nama manajer TEFA?").
+    Dalam alur RAG percakapan, pencarian konteks (retrieval) tidak memiliki akses ke
+    seluruh riwayat chat. Oleh karena itu, pertanyaan lanjutan seperti "bagaimana dengan dia?"
+    harus diubah menjadi pertanyaan lengkap seperti "bagaimana status proyek Kimi Dandy?"
+    agar proses retrieval bisa efektif.
 
     Args:
         query (str): Pertanyaan lanjutan dari pengguna.
-        chat_history (list): Riwayat percakapan sebelumnya.
+        chat_history (list): Riwayat percakapan sebelumnya untuk memberikan konteks.
+        chat_model: Instance model bahasa yang telah diinisialisasi.
 
     Returns:
-        str: Pertanyaan yang telah diformulasikan ulang. Mengembalikan
-             pertanyaan asli jika terjadi kesalahan atau tidak ada riwayat.
+        str: Pertanyaan yang telah diformulasikan ulang. Mengembalikan pertanyaan asli
+             jika terjadi kesalahan atau jika tidak ada riwayat percakapan.
     """
     if not chat_history:
-        logger.info("No chat history, returning original query.")
+        logger.info("Tidak ada riwayat percakapan, mengembalikan kueri asli.")
         return query
 
     formatted_history = _format_chat_history(chat_history)
-    
     prompt = REPHRASE_QUESTION_PROMPT.format(chat_history=formatted_history, query=query)
 
     try:
-        logger.info("Rephrasing question with history...")
-        response = await chat_model.generate_content_async(prompt)
+        logger.info("Memulai formulasi ulang pertanyaan dengan konteks riwayat...")
+        response = await chat_model.ainvoke(prompt)
         
-        standalone_question = response.text.strip()
-        logger.info(f"Original query: '{query}'")
-        logger.info(f"Rephrased question: '{standalone_question}'")
+        standalone_question = response.content.strip()
+        
+        if standalone_question.lower() != query.lower():
+            logger.info(f"Kueri asli: '{query}'")
+            logger.info(f"Kueri setelah formulasi ulang: '{standalone_question}'")
         
         return standalone_question
     except Exception as e:
-        logger.error(f"Error during question rephrasing: {e}")
-
+        logger.error(f"Terjadi kesalahan saat formulasi ulang pertanyaan: {e}", exc_info=True)
         return query
