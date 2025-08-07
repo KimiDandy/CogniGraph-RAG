@@ -141,130 +141,96 @@ Pastikan Anda telah menginstal:
 4. **Neo4j Desktop** - [Download di sini](https://neo4j.com/download/)
 5. **Git** untuk cloning repository
 
-### **Langkah 1: Clone Repository**
+### **2. Clone Repository**
 
 ```bash
 git clone <repository-url>
-cd next-rag
+cd cognigraph-rag
 ```
 
-### **Langkah 2: Setup Backend**
+### **3. Setup Backend (FastAPI)**
 
-```bash
-cd backend
+1.  **Masuk ke direktori backend dan instal dependensi:**
+    ```bash
+    cd backend
+    poetry install
+    ```
 
-# Install dependencies menggunakan Poetry
-poetry install
+2.  **Konfigurasi Environment (`.env`)**:
+    - Di dalam direktori `backend`, salin file contoh menjadi file `.env` baru: `cp .env.example .env`.
+    - Buka file `.env` dan isi nilainya:
+        - `GOOGLE_API_KEY`: Dapatkan dari [Google AI Studio](https://makersuite.google.com/app/apikey).
+        - Kredensial Neo4j (lihat langkah berikutnya).
 
-# Copy dan konfigurasi environment variables
-cp .env.example .env
-```
+3.  **Setup Neo4j Database**:
+    - Buka **Neo4j Desktop**.
+    - Buat *Project* baru, lalu buat *Database* baru (DBMS).
+    - Klik **Start** pada database Anda. Setelah aktif, kredensial default biasanya:
+        - **URI**: `bolt://localhost:7687`.
+        - **Username**: `neo4j`.
+    - Saat pertama kali connect, Anda akan diminta mengatur password baru. Gunakan password ini untuk `NEO4J_PASSWORD` di file `.env` Anda.
 
-**Konfigurasi file `.env`:**
+4.  **Setup Tesseract OCR**:
+    - **Windows**: Unduh dan jalankan installer dari [UB-Mannheim/tesseract/wiki](https://github.com/UB-Mannheim/tesseract/wiki). Path default (`C:\Program Files\Tesseract-OCR\tesseract.exe`) sudah dikonfigurasi di `backend/config.py`. Jika Anda menginstal di lokasi lain, sesuaikan path tersebut.
+    - **macOS (via Homebrew)**: `brew install tesseract`.
+    - **Linux (Debian/Ubuntu)**: `sudo apt-get install tesseract-ocr`.
 
-```env
-# Google API Key (wajib)
-GOOGLE_API_KEY="your_google_api_key_here"
+### **4. Setup Frontend (Next.js)**
 
-# Neo4j Configuration (sesuaikan dengan setup Neo4j Anda)
-NEO4J_URI="bolt://localhost:7687"
-NEO4J_USERNAME="neo4j"
-NEO4J_PASSWORD="your_neo4j_password"
-```
+1.  **Masuk ke direktori frontend dan instal dependensi:**
+    ```bash
+    cd ../frontend
+    npm install
+    ```
 
-**Konfigurasi Tesseract OCR:**
+### **5. Menjalankan Aplikasi**
 
-Pastikan Tesseract OCR terinstal di sistem Anda. Aplikasi akan mencoba menemukannya secara otomatis. Jika tidak ditemukan, Anda dapat mengatur path secara manual di `backend/core/config.py`.
+Anda perlu menjalankan dua terminal secara bersamaan.
 
+- **Terminal 1: Jalankan Backend Server**:
+  ```bash
+  # Dari direktori backend/
+  poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+  ```
 
+- **Terminal 2: Jalankan Frontend Server**:
+  ```bash
+  # Dari direktori frontend/
+  npm run dev
+  ```
 
-### **Langkah 3: Setup Neo4j Database**
-
-1. Buka **Neo4j Desktop**
-2. Buat database baru dengan nama `cognigraph-rag`
-3. Set password untuk user `neo4j`
-4. Start database
-5. Pastikan konfigurasi di `.env` sesuai dengan setup Neo4j Anda
-
-### **Langkah 4: Setup Frontend**
-
-```bash
-cd ../frontend
-
-# Install dependencies
-npm install
-```
-
-### **Langkah 5: Menjalankan Aplikasi**
-
-**Terminal 1 - Backend:**
-```bash
-cd backend
-poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-**Terminal 2 - Frontend:**
-```bash
-cd frontend
-npm run dev
-```
-
-**Akses Aplikasi:**
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000
-- API Documentation: http://localhost:8000/docs
+Setelah kedua server berjalan, buka **[http://localhost:3000](http://localhost:3000)** di browser Anda.
 
 ## 📁 Struktur Proyek
 
 ```
-next-rag/
-├── backend/                    # Backend FastAPI
-│   ├── app/                   # Aplikasi utama
-│   │   ├── main.py           # Entry point, Lifespan Mgmt & API endpoints
+cognigraph-rag/
+├── backend/                  # Backend FastAPI
+│   ├── app/                  # FastAPI application
+│   │   ├── main.py           # API endpoints
 │   │   └── schemas.py        # Pydantic models
-│   ├── core/                 # Konfigurasi inti
-│   │   └── config.py         # Environment variables & settings
+│   ├── config.py             # Konfigurasi terpusat
 │   ├── ingestion/            # Pipeline pemrosesan dokumen
-│   │   ├── graph_builder.py  # Knowledge graph extraction (with retry)
-│   │   ├── indexer.py        # Context enrichment & vectorization
-│   │   ├── parser.py         # Document parsing dengan OCR
-│   │   └── pipeline.py       # Orchestration pipeline
-│   ├── retrieval/            # Sistem retrieval & QA
-│   │   ├── hybrid_retriever.py # Graph-enhanced RAG
-│   │   └── qa_chain.py       # Question answering chain
+│   ├── retrieval/            # Logika RAG
 │   ├── data/                 # Data storage (ignored by git)
-│   │   ├── uploads/          # Uploaded documents
-│   │   └── chromadb/         # Vector database
-│   ├── pyproject.toml        # Poetry dependencies
-│   └── .env.example          # Environment template
-├── frontend/                  # Frontend Next.js
-│   ├── app/                  # Next.js App Router
-│   │   ├── page.tsx          # Main page
-│   │   └── layout.tsx        # Root layout with Toast provider
-│   ├── components/           # React components
-│   │   ├── ChatInterface.tsx # Chat UI with GFM Markdown
-│   │   ├── DocumentLibrary.tsx # Document management
-│   │   └── FileUploader.tsx  # File upload with toast notifications
-│   ├── lib/                  # Utilities
-│   │   └── api.ts           # API client functions
-│   ├── package.json          # NPM dependencies
-│   └── tailwind.config.ts    # Tailwind configuration
+│   ├── pyproject.toml        # Dependensi Poetry
+│   └── .env.example          # Template environment
+├── frontend/                 # Frontend Next.js
+│   ├── app/                  # Halaman utama
+│   ├── components/           # Komponen React
+│   ├── lib/                  # Fungsi utilitas
+│   ├── package.json          # Dependensi NPM
+│   └── tailwind.config.ts    # Konfigurasi Tailwind
 └── README.md                 # Dokumentasi ini
 ```
 
 ## 🔧 Konfigurasi Lanjutan
 
-### **Mendapatkan Google API Key**
-
-1. Kunjungi [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Buat API key baru
-3. Copy dan paste ke file `.env`
-
 ### **Optimasi Performa**
 
-- **Chunk Size**: Sesuaikan ukuran chunk di `indexer.py` berdasarkan jenis dokumen
-- **Embedding Model**: Ganti model embedding di `config.py` sesuai kebutuhan bahasa
-- **Neo4j Memory**: Tingkatkan alokasi memory Neo4j untuk dataset besar
+- **Chunk Size**: Sesuaikan ukuran chunk di `backend/ingestion/indexer.py` berdasarkan jenis dokumen.
+- **Embedding Model**: Ganti model embedding di `backend/config.py` sesuai kebutuhan bahasa.
+- **Neo4j Memory**: Tingkatkan alokasi memori Neo4j untuk dataset yang lebih besar.
 
 ### **Keamanan**
 
