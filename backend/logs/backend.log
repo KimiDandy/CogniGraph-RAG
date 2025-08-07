@@ -1,0 +1,89 @@
+2025-08-07 21:22:15.077 | INFO     | app.main:lifespan:32 - Application Startup: Initializing resources...
+2025-08-07 21:22:15.078 | INFO     | app.main:lifespan:36 - Tesseract OCR configured.
+2025-08-07 21:22:17.244 | INFO     | app.main:lifespan:41 - Neo4j driver initialized and connection verified.
+2025-08-07 21:22:17.753 | INFO     | app.main:lifespan:45 - ChromaDB client initialized from path: data/chroma_db
+2025-08-07 21:22:17.868 | INFO     | app.main:lifespan:50 - Google AI models (Embedding and Chat) initialized.
+2025-08-07 21:23:36.440 | INFO     | app.main:lifespan:62 - Application Shutdown: Cleaning up resources...
+2025-08-07 21:23:36.441 | INFO     | app.main:lifespan:65 - Neo4j driver connection closed.
+2025-08-07 21:23:36.442 | INFO     | app.main:lifespan:66 - Resource cleanup complete.
+2025-08-07 21:24:52.433 | INFO     | app.main:lifespan:33 - Application Startup: Initializing resources...
+2025-08-07 21:24:52.433 | INFO     | app.main:lifespan:37 - Tesseract OCR configured.
+2025-08-07 21:24:54.503 | INFO     | app.main:lifespan:42 - Neo4j driver initialized and connection verified.
+2025-08-07 21:24:54.650 | INFO     | app.main:lifespan:46 - ChromaDB client initialized from path: data/chroma_db
+2025-08-07 21:25:24.590 | INFO     | app.main:lifespan:51 - Google AI models (Embedding and Chat) initialized.
+2025-08-07 21:25:34.699 | INFO     | app.main:lifespan:33 - Application Startup: Initializing resources...
+2025-08-07 21:25:34.699 | INFO     | app.main:lifespan:37 - Tesseract OCR configured.
+2025-08-07 21:25:36.752 | INFO     | app.main:lifespan:42 - Neo4j driver initialized and connection verified.
+2025-08-07 21:25:36.888 | INFO     | app.main:lifespan:46 - ChromaDB client initialized from path: data/chroma_db
+2025-08-07 21:25:49.419 | INFO     | app.main:lifespan:51 - Google AI models (Embedding and Chat) initialized.
+2025-08-07 21:27:00.979 | INFO     | app.main:lifespan:63 - Application Shutdown: Cleaning up resources...
+2025-08-07 21:27:00.980 | INFO     | app.main:lifespan:66 - Neo4j driver connection closed.
+2025-08-07 21:27:00.980 | INFO     | app.main:lifespan:67 - Resource cleanup complete.
+2025-08-07 21:27:19.784 | INFO     | app.main:lifespan:33 - Application Startup: Initializing resources...
+2025-08-07 21:27:19.784 | INFO     | app.main:lifespan:37 - Tesseract OCR configured.
+2025-08-07 21:27:21.849 | INFO     | app.main:lifespan:42 - Neo4j driver initialized and connection verified.
+2025-08-07 21:27:21.991 | INFO     | app.main:lifespan:46 - ChromaDB client initialized from path: data/chroma_db
+2025-08-07 21:27:33.953 | INFO     | app.main:lifespan:51 - Google AI models (Embedding and Chat) initialized.
+2025-08-07 21:27:46.847 | INFO     | app.main:create_upload_file:100 - File 'dok ujicoba2.pdf' saved to 'data\uploads\dok ujicoba2.pdf'
+2025-08-07 21:27:46.848 | INFO     | app.main:create_upload_file:112 - Processing for dok ujicoba2.pdf started in the background.
+2025-08-07 21:27:58.032 | INFO     | app.main:create_upload_file:100 - File '254_Kimi_Dandy_Yudanarko_3_4-1.pdf' saved to 'data\uploads\254_Kimi_Dandy_Yudanarko_3_4-1.pdf'
+2025-08-07 21:27:58.033 | INFO     | app.main:create_upload_file:112 - Processing for 254_Kimi_Dandy_Yudanarko_3_4-1.pdf started in the background.
+2025-08-07 21:29:15.371 | INFO     | app.main:lifespan:63 - Application Shutdown: Cleaning up resources...
+2025-08-07 21:29:15.372 | INFO     | app.main:lifespan:66 - Neo4j driver connection closed.
+2025-08-07 21:29:15.372 | INFO     | app.main:lifespan:67 - Resource cleanup complete.
+2025-08-07 21:29:23.285 | INFO     | app.main:lifespan:33 - Application Startup: Initializing resources...
+2025-08-07 21:29:23.285 | INFO     | app.main:lifespan:37 - Tesseract OCR configured.
+2025-08-07 21:29:25.331 | INFO     | app.main:lifespan:42 - Neo4j driver initialized and connection verified.
+2025-08-07 21:29:25.469 | INFO     | app.main:lifespan:46 - ChromaDB client initialized from path: data/chroma_db
+2025-08-07 21:29:37.670 | INFO     | app.main:lifespan:51 - Google AI models (Embedding and Chat) initialized.
+2025-08-07 21:30:11.563 | INFO     | app.main:lifespan:33 - Application Startup: Initializing resources...
+2025-08-07 21:30:11.563 | INFO     | app.main:lifespan:37 - Tesseract OCR configured.
+2025-08-07 21:30:13.619 | INFO     | app.main:lifespan:42 - Neo4j driver initialized and connection verified.
+2025-08-07 21:30:13.760 | INFO     | app.main:lifespan:46 - ChromaDB client initialized from path: data/chroma_db
+2025-08-07 21:30:26.318 | INFO     | app.main:lifespan:51 - Google AI models (Embedding and Chat) initialized.
+2025-08-07 21:30:47.437 | INFO     | app.main:create_upload_file:100 - File 'dok ujicoba2.pdf' saved to 'data\uploads\dok ujicoba2.pdf'
+2025-08-07 21:30:47.437 | INFO     | app.main:create_upload_file:112 - Processing for dok ujicoba2.pdf started in the background.
+2025-08-07 21:30:57.819 | INFO     | app.main:create_upload_file:100 - File '254_Kimi_Dandy_Yudanarko_3_4-1.pdf' saved to 'data\uploads\254_Kimi_Dandy_Yudanarko_3_4-1.pdf'
+2025-08-07 21:30:57.819 | INFO     | app.main:create_upload_file:112 - Processing for 254_Kimi_Dandy_Yudanarko_3_4-1.pdf started in the background.
+2025-08-07 21:31:32.527 | INFO     | app.main:answer_query:122 - Received query: 'siapa manajer tefa?' for documents: ['dok ujicoba2.pdf']
+2025-08-07 21:32:17.223 | INFO     | app.main:lifespan:63 - Application Shutdown: Cleaning up resources...
+2025-08-07 21:32:17.223 | INFO     | app.main:lifespan:66 - Neo4j driver connection closed.
+2025-08-07 21:32:17.223 | INFO     | app.main:lifespan:67 - Resource cleanup complete.
+2025-08-07 21:32:28.236 | INFO     | app.main:lifespan:33 - Application Startup: Initializing resources...
+2025-08-07 21:32:28.237 | INFO     | app.main:lifespan:37 - Tesseract OCR configured.
+2025-08-07 21:32:30.285 | INFO     | app.main:lifespan:42 - Neo4j driver initialized and connection verified.
+2025-08-07 21:32:30.774 | INFO     | app.main:lifespan:46 - ChromaDB client initialized from path: data/chroma_db
+2025-08-07 21:33:03.536 | INFO     | app.main:lifespan:33 - Application Startup: Initializing resources...
+2025-08-07 21:33:03.536 | INFO     | app.main:lifespan:37 - Tesseract OCR configured.
+2025-08-07 21:33:05.608 | INFO     | app.main:lifespan:42 - Neo4j driver initialized and connection verified.
+2025-08-07 21:33:05.733 | INFO     | app.main:lifespan:46 - ChromaDB client initialized from path: data/chroma_db
+2025-08-07 21:33:19.331 | INFO     | app.main:lifespan:51 - Google AI models (Embedding and Chat) initialized.
+2025-08-07 21:33:57.390 | INFO     | app.main:create_upload_file:100 - File 'dok ujicoba2.pdf' saved to 'data\uploads\dok ujicoba2.pdf'
+2025-08-07 21:33:57.390 | INFO     | app.main:create_upload_file:112 - Processing for dok ujicoba2.pdf started in the background.
+2025-08-07 21:34:04.180 | INFO     | app.main:create_upload_file:100 - File '254_Kimi_Dandy_Yudanarko_3_4-1.pdf' saved to 'data\uploads\254_Kimi_Dandy_Yudanarko_3_4-1.pdf'
+2025-08-07 21:34:04.180 | INFO     | app.main:create_upload_file:112 - Processing for 254_Kimi_Dandy_Yudanarko_3_4-1.pdf started in the background.
+2025-08-07 21:34:23.989 | INFO     | app.main:answer_query:122 - Received query: 'siapa manajer tefa?' for documents: ['dok ujicoba2.pdf']
+2025-08-07 21:34:45.159 | INFO     | app.main:answer_query:122 - Received query: 'bukan manajer investasi, tapi manajer TEFA' for documents: ['dok ujicoba2.pdf']
+2025-08-07 21:34:56.874 | INFO     | app.main:answer_query:122 - Received query: 'siapa manajer tefa?' for documents: ['dok ujicoba2.pdf', '254_Kimi_Dandy_Yudanarko_3_4-1.pdf']
+2025-08-07 21:35:03.938 | INFO     | app.main:answer_query:122 - Received query: 'berapa nip nya?' for documents: ['dok ujicoba2.pdf', '254_Kimi_Dandy_Yudanarko_3_4-1.pdf']
+2025-08-07 21:35:15.767 | INFO     | app.main:answer_query:122 - Received query: 'siapa direktur utama?' for documents: ['dok ujicoba2.pdf', '254_Kimi_Dandy_Yudanarko_3_4-1.pdf']
+2025-08-07 21:35:32.596 | INFO     | app.main:answer_query:122 - Received query: 'siapa direktur utama?' for documents: ['254_Kimi_Dandy_Yudanarko_3_4-1.pdf']
+2025-08-07 21:36:30.700 | INFO     | app.main:create_upload_file:100 - File 'dok ujicoba2.pdf' saved to 'data\uploads\dok ujicoba2.pdf'
+2025-08-07 21:36:30.700 | INFO     | app.main:create_upload_file:112 - Processing for dok ujicoba2.pdf started in the background.
+2025-08-07 21:36:35.087 | INFO     | app.main:create_upload_file:100 - File '254_Kimi_Dandy_Yudanarko_3_4-1.pdf' saved to 'data\uploads\254_Kimi_Dandy_Yudanarko_3_4-1.pdf'
+2025-08-07 21:36:35.088 | INFO     | app.main:create_upload_file:112 - Processing for 254_Kimi_Dandy_Yudanarko_3_4-1.pdf started in the background.
+2025-08-07 21:36:39.804 | INFO     | app.main:answer_query:122 - Received query: 'siapa manajer tefa?' for documents: ['dok ujicoba2.pdf']
+2025-08-07 21:36:46.857 | INFO     | app.main:lifespan:63 - Application Shutdown: Cleaning up resources...
+2025-08-07 21:36:46.858 | INFO     | app.main:lifespan:66 - Neo4j driver connection closed.
+2025-08-07 21:36:46.859 | INFO     | app.main:lifespan:67 - Resource cleanup complete.
+2025-08-07 21:36:57.577 | INFO     | app.main:lifespan:33 - Application Startup: Initializing resources...
+2025-08-07 21:36:57.577 | INFO     | app.main:lifespan:37 - Tesseract OCR configured.
+2025-08-07 21:36:59.658 | INFO     | app.main:lifespan:42 - Neo4j driver initialized and connection verified.
+2025-08-07 21:36:59.787 | INFO     | app.main:lifespan:46 - ChromaDB client initialized from path: data/chroma_db
+2025-08-07 21:37:11.019 | INFO     | app.main:lifespan:51 - Google AI models (Embedding and Chat) initialized.
+2025-08-07 21:37:14.692 | INFO     | app.main:create_upload_file:100 - File 'dok ujicoba2.pdf' saved to 'data\uploads\dok ujicoba2.pdf'
+2025-08-07 21:37:14.692 | INFO     | app.main:create_upload_file:112 - Processing for dok ujicoba2.pdf started in the background.
+2025-08-07 21:37:21.562 | INFO     | app.main:create_upload_file:100 - File '254_Kimi_Dandy_Yudanarko_3_4-1.pdf' saved to 'data\uploads\254_Kimi_Dandy_Yudanarko_3_4-1.pdf'
+2025-08-07 21:37:21.562 | INFO     | app.main:create_upload_file:112 - Processing for 254_Kimi_Dandy_Yudanarko_3_4-1.pdf started in the background.
+2025-08-07 21:37:25.815 | INFO     | app.main:answer_query:122 - Received query: 'siapa manajer tefa?' for documents: ['dok ujicoba2.pdf']
+2025-08-07 21:37:34.304 | INFO     | app.main:answer_query:122 - Received query: 'siapa manajer tefa?' for documents: ['dok ujicoba2.pdf', '254_Kimi_Dandy_Yudanarko_3_4-1.pdf']

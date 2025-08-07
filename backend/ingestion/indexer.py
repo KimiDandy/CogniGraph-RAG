@@ -1,22 +1,11 @@
-import chromadb
 import logging
-from chromadb.utils import embedding_functions
-from core.config import EMBEDDING_MODEL_NAME, CHROMA_PATH, CHROMA_COLLECTION_NAME
 from typing import List
+from config import CHROMA_COLLECTION_NAME
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Inisialisasi klien ChromaDB di tingkat modul untuk efisiensi
-client = chromadb.PersistentClient(path=CHROMA_PATH)
-sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBEDDING_MODEL_NAME)
-collection = client.get_or_create_collection(
-    name=CHROMA_COLLECTION_NAME,
-    embedding_function=sentence_transformer_ef,
-    metadata={"hnsw:space": "cosine"}
-)
-
-async def index_documents(documents: List[str], metadatas: List[dict], ids: List[str], filename: str):
+async def index_documents(chroma_client, embedding_function, documents: List[str], metadatas: List[dict], ids: List[str], filename: str):
     """
     Mengindeks dokumen (potongan teks) yang telah diproses ke dalam ChromaDB.
     
@@ -32,6 +21,11 @@ async def index_documents(documents: List[str], metadatas: List[dict], ids: List
 
     logger.info(f"Mengindeks {len(documents)} potongan teks dari {filename} ke ChromaDB...")
     try:
+        collection = chroma_client.get_or_create_collection(
+            name=CHROMA_COLLECTION_NAME,
+            embedding_function=embedding_function,
+            metadata={"hnsw:space": "cosine"} # Standar industri
+        )
         collection.add(documents=documents, metadatas=metadatas, ids=ids)
         logger.info(f"Successfully indexed {len(documents)} chunks for {filename}.")
     except Exception as e:

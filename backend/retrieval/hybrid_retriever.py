@@ -1,16 +1,13 @@
 import logging
-import google.generativeai as genai
+from typing import List, Dict, Optional
 from .qa_chain import vector_search_tool
 from .conversational_logic import rephrase_question_with_history
-from core.config import LLM_MODEL_NAME, GOOGLE_API_KEY
-from typing import List, Dict, Optional
+from config import FINAL_ANSWER_PROMPT
 
-# Configure logging and AI model
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-genai.configure(api_key=GOOGLE_API_KEY)
 
-async def get_answer(query: str, filenames: List[str], chat_history: Optional[List[Dict[str, str]]]) -> str:
+async def get_answer(query: str, filenames: List[str], chat_history: Optional[List[Dict[str, str]]], chat_model, chroma_client, embedding_function) -> str:
     """
     Mengorkestrasi alur RAG untuk menghasilkan jawaban berdasarkan kueri.
 
@@ -32,10 +29,9 @@ async def get_answer(query: str, filenames: List[str], chat_history: Optional[Li
     """
     logger.info(f"Initiating enriched RAG for query: '{query}' on files: {filenames}")
 
-    rephrased_query = await rephrase_question_with_history(query, chat_history)
+    rephrased_query = await rephrase_question_with_history(query, chat_history, chat_model)
 
-
-    context = await vector_search_tool(rephrased_query, filenames)
+    context = await vector_search_tool(rephrased_query, filenames, chroma_client, embedding_function)
     if not context:
         logger.warning("Vector search returned no context. Cannot generate answer.")
         return "Maaf, saya tidak menemukan informasi yang relevan dengan pertanyaan Anda di dalam dokumen."
@@ -44,26 +40,12 @@ async def get_answer(query: str, filenames: List[str], chat_history: Optional[Li
 
 
     logger.info("Generating final answer from enriched context...")
-    model = genai.GenerativeModel(LLM_MODEL_NAME)
-
-    final_prompt = f"""
-    Anda adalah asisten AI yang cerdas dan ahli. Berdasarkan informasi yang sangat relevan di bawah ini—yang mencakup teks asli dan fakta-fakta kunci yang diekstrak—jawablah pertanyaan pengguna secara akurat dan langsung dalam Bahasa Indonesia.
-
-    INFORMASI YANG DITEMUKAN (KONTEKS GABUNGAN):
-    ---
-    {context}
-    ---
-
-    PERTANYAAN PENGGUNA:
-    {rephrased_query}
-
-    JAWABAN ANDA:
-    """
+    final_prompt = FINAL_ANSWER_PROMPT.format(context=context, rephrased_query=rephrased_query)
 
     try:
-        final_response = await model.generate_content_async(final_prompt)
+        final_response = await chat_model.ainvoke(final_prompt)
         logger.info("Final answer generated successfully.")
-        return final_response.text
+        return final_response.content
     except Exception as e:
         logger.error(f"Error during final answer generation: {e}", exc_info=True)
         return "Terjadi kesalahan saat menghasilkan jawaban akhir."

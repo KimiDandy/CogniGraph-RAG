@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from 'react';
+import toast from 'react-hot-toast';
 import { useDropzone } from 'react-dropzone';
 import { uploadFile } from '@/lib/api';
 import { FileUp } from 'lucide-react';
@@ -28,34 +29,50 @@ const FileUploader: React.FC<FileUploaderProps> = ({ setUploadedFiles }) => {
     const newFiles: Document[] = acceptedFiles.map(file => ({ name: file.name, status: 'processing' }));
     setUploadedFiles(prev => [...prev, ...newFiles]);
 
-    // Create an array of upload promises
-    const uploadPromises: Promise<UploadResult>[] = acceptedFiles.map(file => 
+    const uploadPromises = acceptedFiles.map(file => 
       uploadFile(file, () => {}).then(
-        () => ({ name: file.name, status: 'completed' }),
-        (error) => ({ name: file.name, status: 'error', error })
+        () => ({ name: file.name, status: 'completed' as const }),
+        (error) => ({ name: file.name, status: 'error' as const, error })
       )
     );
 
-    // Wait for all uploads to settle
-    const results = await Promise.allSettled(uploadPromises);
+    toast.promise(
+      Promise.allSettled(uploadPromises).then(results => {
+        let hasError = false;
+        setUploadedFiles(prev => {
+          const newFileStates = [...prev];
+          results.forEach(result => {
+            if (result.status === 'fulfilled') {
+              const uploadResult = result.value;
+              const fileIndex = newFileStates.findIndex(f => f.name === uploadResult.name && f.status === 'processing');
+              if (fileIndex !== -1) {
+                if (uploadResult.status === 'error') {
+                  hasError = true;
+                  console.error(`Upload error for ${uploadResult.name}:`, uploadResult.error);
+                  newFileStates[fileIndex].status = 'error';
+                } else {
+                  newFileStates[fileIndex].status = 'completed';
+                }
+              }
+            } else {
+              hasError = true;
+              console.error('An upload promise was rejected:', result.reason);
+            }
+          });
 
-    // Update statuses based on results
-    setUploadedFiles(prev => {
-      const newFileStates = [...prev];
-      results.forEach(result => {
-        if (result.status === 'fulfilled') {
-          const { name, status, error } = result.value;
-          if (status === 'error' && error) {
-            console.error(`Upload error for ${name}:`, error);
+          if (hasError) {
+            // The error for the toast is thrown here, so the toast promise will catch it.
+            throw new Error("Beberapa file gagal diunggah.");
           }
-          const fileIndex = newFileStates.findIndex(f => f.name === name && f.status === 'processing');
-          if (fileIndex !== -1) {
-            newFileStates[fileIndex] = { ...newFileStates[fileIndex], status };
-          }
-        }
-      });
-      return newFileStates;
-    });
+          return newFileStates;
+        });
+      }),
+      {
+        loading: 'Mengunggah file...',
+        success: 'File berhasil diunggah!',
+        error: (err) => err.message || 'Terjadi kesalahan saat mengunggah.',
+      }
+    );
 
     setIsUploading(false);
   }, [setUploadedFiles]);
