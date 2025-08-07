@@ -31,7 +31,7 @@ export default function Home() {
           <h1 className="text-4xl font-bold tracking-tighter text-slate-800">
             CogniGraph RAG
           </h1>
-          <p className="text-slate-600 mt-2">Analis AI Multi-Dokumen Anda</p>
+          <p className="text-slate-600 mt-2">Analis AI Multi-Dokumen</p>
         </header>
 
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-8 bg-white rounded-2xl shadow-xl border border-gray-200 p-8">

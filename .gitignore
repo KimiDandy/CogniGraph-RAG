@@ -4,11 +4,11 @@ __pycache__/
 *.pyo
 *.pyd
 .Python
-# env/
+env/
 venv/
-# .env
-# .env*
-# !.env.example
+.env
+.env*
+!.env.example
 .idea/
 *.egg-info/
 dist/

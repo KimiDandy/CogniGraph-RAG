@@ -87,7 +87,7 @@ graph TD
 ### **Fase Ingesti (Membangun Pengetahuan)**
 
 1. **Ekstraksi Dokumen**: Dokumen diproses oleh `unstructured.io` dengan strategi `hi_res`, mengekstrak teks digital dan teks dari gambar melalui Tesseract OCR.
-2. **Pembangunan Knowledge Graph**: Teks lengkap dikirim ke LLM (Gemini Pro) untuk diekstrak menjadi fakta terstruktur. Proses ini dilengkapi **mekanisme retry dengan exponential backoff** dan **parsing JSON yang kuat** untuk menangani kegagalan sementara dari API.
+2. **Pembangunan Knowledge Graph**: Teks lengkap dikirim ke LLM untuk diekstrak menjadi fakta terstruktur. Proses ini dilengkapi **mekanisme retry dengan exponential backoff** dan **parsing JSON yang kuat** untuk menangani kegagalan sementara dari API.
 3. **Penyimpanan Graf**: Fakta-fakta disimpan ke dalam database graf **Neo4j**.
 4. **Pengayaan Konteks**: Teks dipecah menjadi chunks dan diperkaya dengan fakta relevan dari Neo4j
 5. **Vektorisasi**: "Super-chunks" yang sudah diperkaya diubah menjadi vektor menggunakan model `intfloat/multilingual-e5-large` dan disimpan di **ChromaDB**
@@ -115,7 +115,7 @@ graph TD
 - **Dependency Management**: Poetry
 
 ### **AI & Machine Learning**
-- **LLM**: Google Gemini Pro
+- **LLM**: Google Gemini
 - **Embedding Model**: `intfloat/multilingual-e5-large`
 - **OCR Engine**: Tesseract
 - **Framework**: LangChain

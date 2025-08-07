@@ -9,43 +9,48 @@ logger = logging.getLogger(__name__)
 
 async def get_answer(query: str, filenames: List[str], chat_history: Optional[List[Dict[str, str]]], chat_model, chroma_client, embedding_function) -> str:
     """
-    Mengorkestrasi alur RAG untuk menghasilkan jawaban berdasarkan kueri.
+    Mengorkestrasi alur RAG (Retrieval-Augmented Generation) untuk menghasilkan jawaban.
 
-    Fungsi ini menjalankan tiga langkah utama:
-    1.  **Rephrase:** Memformulasikan ulang pertanyaan pengguna jika ada riwayat
-        percakapan untuk menjadikannya pertanyaan yang mandiri.
-    2.  **Retrieve:** Mengambil konteks yang relevan dari dokumen yang dipilih
-        menggunakan pencarian vektor pada 'super-chunks' yang diperkaya.
-    3.  **Generate:** Menghasilkan jawaban akhir menggunakan LLM berdasarkan
-        konteks yang telah diambil.
+    Fungsi ini adalah inti dari logika tanya-jawab, yang menjalankan tiga langkah utama:
+    1.  **Formulasi Ulang (Rephrase):** Jika ada riwayat percakapan, pertanyaan pengguna
+        difokuskan ulang menjadi pertanyaan mandiri yang mengandung semua konteks relevan.
+        Ini krusial untuk menangani pertanyaan lanjutan (e.g., "bagaimana dengan dia?").
+    2.  **Pengambilan (Retrieve):** Mengambil konteks yang relevan dari dokumen yang dipilih
+        menggunakan pencarian vektor. Konteks ini sudah diperkaya dengan informasi dari
+        knowledge graph pada tahap ingesti.
+    3.  **Pembangkitan (Generate):** Menghasilkan jawaban akhir menggunakan LLM berdasarkan
+        pertanyaan yang telah diformulasi ulang dan konteks yang kaya.
 
     Args:
-        query (str): Pertanyaan dari pengguna.
-        filenames (List[str]): Daftar file yang menjadi sumber jawaban.
-        chat_history (Optional[List[Dict[str, str]]]): Riwayat percakapan.
+        query (str): Pertanyaan asli dari pengguna.
+        filenames (List[str]): Daftar file yang relevan untuk pencarian konteks.
+        chat_history (Optional[List[Dict[str, str]]]): Riwayat percakapan sebelumnya.
+        chat_model: Instance model bahasa generatif.
+        chroma_client: Instance client ChromaDB.
+        embedding_function: Fungsi embedding yang digunakan.
 
     Returns:
-        str: Jawaban akhir yang dihasilkan oleh model.
+        str: Jawaban akhir yang dihasilkan oleh model, atau pesan error jika gagal.
     """
-    logger.info(f"Initiating enriched RAG for query: '{query}' on files: {filenames}")
+    logger.info(f"Memulai alur RAG untuk kueri: '{query}' pada file: {filenames}")
 
     rephrased_query = await rephrase_question_with_history(query, chat_history, chat_model)
-
+    if rephrased_query.lower() != query.lower():
+        logger.info(f"Pertanyaan diformulasi ulang menjadi: '{rephrased_query}'")
     context = await vector_search_tool(rephrased_query, filenames, chroma_client, embedding_function)
     if not context:
-        logger.warning("Vector search returned no context. Cannot generate answer.")
-        return "Maaf, saya tidak menemukan informasi yang relevan dengan pertanyaan Anda di dalam dokumen."
+        logger.warning(f"Pencarian vektor untuk '{rephrased_query}' tidak menemukan konteks.")
+        return "Maaf, saya tidak dapat menemukan informasi yang relevan dengan pertanyaan Anda di dalam dokumen yang tersedia."
 
-    logger.info(f"Retrieved enriched context. Length: {len(context)}")
+    logger.info(f"Berhasil mengambil konteks yang diperkaya. Panjang: {len(context)} karakter.")
 
-
-    logger.info("Generating final answer from enriched context...")
+    logger.info("Menghasilkan jawaban akhir dari konteks yang diperkaya...")
     final_prompt = FINAL_ANSWER_PROMPT.format(context=context, rephrased_query=rephrased_query)
 
     try:
         final_response = await chat_model.ainvoke(final_prompt)
-        logger.info("Final answer generated successfully.")
+        logger.info("Jawaban akhir berhasil dibuat.")
         return final_response.content
     except Exception as e:
-        logger.error(f"Error during final answer generation: {e}", exc_info=True)
-        return "Terjadi kesalahan saat menghasilkan jawaban akhir."
+        logger.error(f"Terjadi kesalahan saat pembuatan jawaban akhir: {e}", exc_info=True)
+        return "Mohon maaf, terjadi kesalahan internal saat saya mencoba merumuskan jawaban."
