@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
+import toast from 'react-hot-toast';
 import { postQuery } from '@/lib/api';
 import { Message, Document } from '../app/page';
 import { Send, User, Bot, Loader2, MessageSquare } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface ChatInterfaceProps {
   messages: Message[];
@@ -44,8 +46,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       onNewMessage(assistantMessage);
     } catch (error) {
       console.error("Query failed:", error);
-      const errorMessage: Message = { role: 'assistant', content: "Maaf, terjadi kesalahan saat menjawab pertanyaan Anda." };
-      onNewMessage(errorMessage);
+      toast.error("Maaf, terjadi kesalahan saat menjawab pertanyaan Anda. Silakan coba lagi.");
     } finally {
       setIsQuerying(false);
     }
@@ -87,7 +88,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               <div className={`px-4 py-3 rounded-2xl max-w-md md:max-w-lg lg:max-w-2xl shadow-sm ${message.role === 'user' ? 'bg-blue-500 text-white rounded-br-none' : 'bg-white text-slate-800 rounded-bl-none'}`}>
                 {message.role === 'assistant' ? (
                   <div className="prose prose-sm max-w-full text-slate-800">
-                    <ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {message.content}
                     </ReactMarkdown>
                   </div>

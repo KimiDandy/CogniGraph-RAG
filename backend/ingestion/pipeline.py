@@ -9,7 +9,7 @@ from ingestion.indexer import index_documents
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-async def process_document(file_path: str):
+async def process_document(file_path: str, neo4j_driver, chroma_client, embedding_function, llm_model):
     """
     Orkestrasi pipeline ingesti dokumen secara lengkap.
 
@@ -38,9 +38,9 @@ async def process_document(file_path: str):
         # Langkah 2: Ekstraksi dan Penyimpanan Knowledge Graph
         logger.info(f"Ekstraksi knowledge graph untuk {filename}...")
         try:
-            structured_data = await extract_knowledge_graph_from_text(text_content)
+            structured_data = await extract_knowledge_graph_from_text(text_content, llm_model=llm_model)
             if structured_data:
-                await store_triplets_in_neo4j(structured_data, filename=filename)
+                await store_triplets_in_neo4j(driver=neo4j_driver, structured_data=structured_data, filename=filename)
             else:
                 logger.info("Tidak ada data terstruktur yang diekstrak, melanjutkan dengan chunking standar.")
         except Exception as e:
@@ -80,7 +80,14 @@ async def process_document(file_path: str):
         ids = [f"{filename}_{i}" for i in range(len(enriched_chunks))]
         metadatas = [{"source_document": filename} for _ in enriched_chunks]
         
-        await index_documents(enriched_chunks, metadatas, ids, filename)
+        await index_documents(
+            chroma_client=chroma_client,
+            embedding_function=embedding_function,
+            documents=enriched_chunks,
+            metadatas=metadatas,
+            ids=ids,
+            filename=filename
+        )
         
         logger.info(f"Berhasil memproses dan mengindeks {filename}")
 

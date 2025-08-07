@@ -35,8 +35,8 @@ Antarmuka yang memungkinkan pengguna mengunggah beberapa dokumen sekaligus dan m
 ### 💬 **Antarmuka Percakapan Kontekstual**
 Dilengkapi dengan *chat history* yang memungkinkan AI memahami pertanyaan lanjutan, menciptakan pengalaman pengguna yang alami dan intuitif.
 
-### 🎨 **UI/UX Modern**
-Antarmuka yang bersih, profesional, dan responsif dengan tema cerah, dirancang menggunakan Next.js dan Tailwind CSS.
+### 🎨 **UI/UX Profesional**
+Antarmuka yang bersih dan responsif dengan umpan balik pengguna yang jelas (status loading, notifikasi sukses/gagal) menggunakan `react-hot-toast`.
 
 ## 🏗️ Arsitektur Sistem
 
@@ -86,9 +86,9 @@ graph TD
 
 ### **Fase Ingesti (Membangun Pengetahuan)**
 
-1. **Ekstraksi Dokumen**: Dokumen diproses oleh `unstructured.io` dengan strategi `hi_res`, mengekstrak teks digital dan teks dari gambar melalui Tesseract OCR
-2. **Pembangunan Knowledge Graph**: Teks lengkap dikirim ke LLM (Gemini Pro) untuk diekstrak menjadi fakta terstruktur (entitas dengan label seperti `:PERSON`, `:ROLE`, dan hubungannya)
-3. **Penyimpanan Graf**: Fakta-fakta disimpan ke dalam database graf **Neo4j**
+1. **Ekstraksi Dokumen**: Dokumen diproses oleh `unstructured.io` dengan strategi `hi_res`, mengekstrak teks digital dan teks dari gambar melalui Tesseract OCR.
+2. **Pembangunan Knowledge Graph**: Teks lengkap dikirim ke LLM (Gemini Pro) untuk diekstrak menjadi fakta terstruktur. Proses ini dilengkapi **mekanisme retry dengan exponential backoff** dan **parsing JSON yang kuat** untuk menangani kegagalan sementara dari API.
+3. **Penyimpanan Graf**: Fakta-fakta disimpan ke dalam database graf **Neo4j**.
 4. **Pengayaan Konteks**: Teks dipecah menjadi chunks dan diperkaya dengan fakta relevan dari Neo4j
 5. **Vektorisasi**: "Super-chunks" yang sudah diperkaya diubah menjadi vektor menggunakan model `intfloat/multilingual-e5-large` dan disimpan di **ChromaDB**
 
@@ -104,6 +104,8 @@ graph TD
 - **Framework**: Next.js 14.1.0
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
+- **UI Feedback**: React Hot Toast
+- **Markdown**: React Markdown with Remark GFM
 - **Icons**: Lucide React
 - **File Upload**: React Dropzone
 
@@ -113,10 +115,11 @@ graph TD
 - **Dependency Management**: Poetry
 
 ### **AI & Machine Learning**
-- **LLM**: Google Gemini Pro (gemini-2.5-flash)
+- **LLM**: Google Gemini Pro
 - **Embedding Model**: `intfloat/multilingual-e5-large`
 - **OCR Engine**: Tesseract
 - **Framework**: LangChain
+- **Logging**: Loguru
 
 ### **Database**
 - **Vector Store**: ChromaDB
@@ -163,9 +166,6 @@ cp .env.example .env
 # Google API Key (wajib)
 GOOGLE_API_KEY="your_google_api_key_here"
 
-# Model LLM (opsional, default: gemini-2.5-flash)
-LLM_MODEL_NAME="gemini-2.5-flash"
-
 # Neo4j Configuration (sesuaikan dengan setup Neo4j Anda)
 NEO4J_URI="bolt://localhost:7687"
 NEO4J_USERNAME="neo4j"
@@ -174,18 +174,9 @@ NEO4J_PASSWORD="your_neo4j_password"
 
 **Konfigurasi Tesseract OCR:**
 
-Pastikan Tesseract OCR terinstal dan path-nya benar di `backend/core/config.py`:
+Pastikan Tesseract OCR terinstal di sistem Anda. Aplikasi akan mencoba menemukannya secara otomatis. Jika tidak ditemukan, Anda dapat mengatur path secara manual di `backend/core/config.py`.
 
-```python
-# Untuk Windows
-TESSERACT_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-# Untuk macOS (via Homebrew)
-# TESSERACT_PATH = "/usr/local/bin/tesseract"
-
-# Untuk Linux
-# TESSERACT_PATH = "/usr/bin/tesseract"
-```
 
 ### **Langkah 3: Setup Neo4j Database**
 
@@ -229,22 +220,19 @@ npm run dev
 next-rag/
 ├── backend/                    # Backend FastAPI
 │   ├── app/                   # Aplikasi utama
-│   │   ├── main.py           # Entry point & API endpoints
+│   │   ├── main.py           # Entry point, Lifespan Mgmt & API endpoints
 │   │   └── schemas.py        # Pydantic models
 │   ├── core/                 # Konfigurasi inti
 │   │   └── config.py         # Environment variables & settings
 │   ├── ingestion/            # Pipeline pemrosesan dokumen
-│   │   ├── parser.py         # Document parsing dengan OCR
-│   │   ├── graph_builder.py  # Knowledge graph extraction
+│   │   ├── graph_builder.py  # Knowledge graph extraction (with retry)
 │   │   ├── indexer.py        # Context enrichment & vectorization
-│   │   ├── ocr_config.py     # Tesseract OCR configuration
+│   │   ├── parser.py         # Document parsing dengan OCR
 │   │   └── pipeline.py       # Orchestration pipeline
 │   ├── retrieval/            # Sistem retrieval & QA
-│   │   ├── conversational_logic.py  # Question rephrasing
-│   │   ├── hybrid_retriever.py      # Graph-enhanced RAG
-│   │   └── qa_chain.py              # Question answering chain
-│   ├── models/               # Data models
-│   ├── data/                 # Data storage
+│   │   ├── hybrid_retriever.py # Graph-enhanced RAG
+│   │   └── qa_chain.py       # Question answering chain
+│   ├── data/                 # Data storage (ignored by git)
 │   │   ├── uploads/          # Uploaded documents
 │   │   └── chromadb/         # Vector database
 │   ├── pyproject.toml        # Poetry dependencies
@@ -252,12 +240,11 @@ next-rag/
 ├── frontend/                  # Frontend Next.js
 │   ├── app/                  # Next.js App Router
 │   │   ├── page.tsx          # Main page
-│   │   └── layout.tsx        # Root layout
+│   │   └── layout.tsx        # Root layout with Toast provider
 │   ├── components/           # React components
-│   │   ├── ChatInterface.tsx # Chat UI dengan history
+│   │   ├── ChatInterface.tsx # Chat UI with GFM Markdown
 │   │   ├── DocumentLibrary.tsx # Document management
-│   │   ├── FileUploader.tsx  # File upload component
-│   │   └── Message.tsx       # Message display component
+│   │   └── FileUploader.tsx  # File upload with toast notifications
 │   ├── lib/                  # Utilities
 │   │   └── api.ts           # API client functions
 │   ├── package.json          # NPM dependencies

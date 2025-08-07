@@ -1,6 +1,5 @@
-import google.generativeai as genai
 import logging
-from config import LLM_MODEL_NAME
+from config import REPHRASE_QUESTION_PROMPT
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,7 +24,7 @@ def _format_chat_history(chat_history: list[dict]) -> str:
     
     return "\n".join(formatted_history)
 
-async def rephrase_question_with_history(query: str, chat_history: list) -> str:
+async def rephrase_question_with_history(query: str, chat_history: list, chat_model) -> str:
     """
     Memformulasikan ulang pertanyaan pengguna berdasarkan riwayat percakapan.
 
@@ -47,19 +46,11 @@ async def rephrase_question_with_history(query: str, chat_history: list) -> str:
 
     formatted_history = _format_chat_history(chat_history)
     
-    prompt = f"""Based on the following conversation history, rephrase the "Follow Up Input" to be a standalone question that contains all the necessary context from the chat history.
-
-Chat History:
-{formatted_history}
-
-Follow Up Input: {query}
-
-Standalone question:"""
+    prompt = REPHRASE_QUESTION_PROMPT.format(chat_history=formatted_history, query=query)
 
     try:
         logger.info("Rephrasing question with history...")
-        model = genai.GenerativeModel(LLM_MODEL_NAME)
-        response = await model.generate_content_async(prompt)
+        response = await chat_model.generate_content_async(prompt)
         
         standalone_question = response.text.strip()
         logger.info(f"Original query: '{query}'")
