@@ -236,3 +236,5 @@
 2025-08-07 22:15:14.897 | INFO     | app.main:create_upload_file:126 - Proses ingesti untuk 'dok ujicoba2.pdf' telah dijadwalkan.
 2025-08-07 22:15:22.491 | INFO     | app.main:create_upload_file:113 - File '254_Kimi_Dandy_Yudanarko_3_4-1.pdf' berhasil disimpan di 'data\uploads\254_Kimi_Dandy_Yudanarko_3_4-1.pdf'
 2025-08-07 22:15:22.492 | INFO     | app.main:create_upload_file:126 - Proses ingesti untuk '254_Kimi_Dandy_Yudanarko_3_4-1.pdf' telah dijadwalkan.
+2025-08-07 22:15:28.691 | INFO     | app.main:answer_query:149 - Menerima kueri: 'siapa manajer TEFA?' pada dokumen: ['dok ujicoba2.pdf']
+2025-08-07 22:15:40.715 | INFO     | app.main:answer_query:149 - Menerima kueri: 'coba analisa lagi' pada dokumen: ['dok ujicoba2.pdf', '254_Kimi_Dandy_Yudanarko_3_4-1.pdf']
